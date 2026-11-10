@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>GvRng Studio — Simulator & World Builder Guido van Robot NG</title>
+  <meta name="description" content="Simulator & World Builder Guido van Robot NG resmi: Rancang peta labirin custom, eksekusi step-by-step alur logika, validasi target misi, kuis logika, dan bank soal praktikum Informatika UMS.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=1.0">
+  <meta name="theme-color" content="#0066cc">
+</head>
+<body class="gvr-clean-app">
+
+  <!-- 1. COMPACT APP HEADER (48px) -->
+  <header class="gvr-app-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="https://voltakyy.github.io/" class="portal-back-btn" title="Kembali ke Portal Belajar UMS">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>Portal</span>
+        </a>
+        <div class="brand-mini-box">
+          <div class="brand-mini-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+              <circle cx="12" cy="5" r="2"></circle>
+              <path d="M12 7v4"></path>
+              <line x1="8" y1="16" x2="8" y2="16"></line>
+              <line x1="16" y1="16" x2="16" y2="16"></line>
+            </svg>
+          </div>
+          <div>
+            <h1 class="brand-app-title">GvRng Studio</h1>
+            <span class="brand-app-sub">Simulator &amp; World Builder v3.0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <a href="https://spada.ums.ac.id/" target="_blank" rel="noopener noreferrer" class="meta-pill-link">
+          <span>SPADA UMS ↗</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. STICKY MODE NAVIGATION (4 MODES) -->
+  <nav class="gvr-mode-nav-bar" aria-label="Navigasi Mode Belajar">
+    <div class="mode-nav-inner">
+      <button class="nav-mode-pill nav-tab-btn active" data-tab="tabSimulator">
+        <span class="pill-icon">🎮</span>
+        <span>Simulator IDE</span>
+      </button>
+      <button class="nav-mode-pill nav-tab-btn" data-tab="tabBuilder">
+        <span class="pill-icon">🛠️</span>
+        <span>World Builder</span>
+        <span class="mode-mini-tag">Kustom</span>
+      </button>
+      <button class="nav-mode-pill nav-tab-btn" data-tab="tabQuiz">
+        <span class="pill-icon">📝</span>
+        <span>Kuis Logika</span>
+        <span class="mode-mini-tag">15 Soal</span>
+      </button>
+      <button class="nav-mode-pill nav-tab-btn" data-tab="tabArsip">
+        <span class="pill-icon">📚</span>
+        <span>Bank Soal PDF</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- 3. MAIN APPLICATION CONTAINER -->
+  <main class="gvr-main-shell">
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 1: ARENA SIMULATOR (IDE & STEP DEBUGGER) -->
+    <!-- ======================================================================= -->
+    <div id="tabSimulator" class="main-tab-view active">
+      
+      <!-- Mission Switcher Control Strip -->
+      <section class="mission-control-strip" aria-label="Pemilih Misi Labirin">
+        <div class="mission-stepper-box">
+          <button id="btnPrevMission" class="btn-step-arrow" title="Misi Sebelumnya">‹</button>
+          <div class="mission-info-summary">
+            <span id="missionBadgePill" class="mission-badge-pill">Misi 1</span>
+            <strong id="missionTitle" class="mission-title-text">Pak Mukhlis &amp; Ruangan Spiral</strong>
+            <span id="missionConstraint" class="mission-sub-meta">Maksimal 9 Baris Kode</span>
+          </div>
+          <button id="btnNextMission" class="btn-step-arrow" title="Misi Selanjutnya">›</button>
+          <button id="btnOpenDrawer" class="btn-catalog-drawer" title="Buka Semua Katalog Misi">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Katalog</span>
+          </button>
+        </div>
+
+        <!-- Quick Horizontal Dock Carousel -->
+        <div class="mission-dock-carousel" id="missionDockCarousel">
+          <!-- Populated dynamically by app.js from GVR_MISSIONS -->
+        </div>
+      </section>
+
+      <!-- Main Simulator Card -->
+      <div class="simulator-arena-card">
+        
+        <!-- LEFT COLUMN: CANVAS VISUALIZER -->
+        <div class="visualizer-pane">
+          
+          <!-- Viewport View Switcher -->
+          <div class="viewport-toolbar">
+            <div class="view-switch-group">
+              <button id="btnViewLive" class="view-btn active" title="Kondisi Saat Ini">
+                ● Simulasi Live
+              </button>
+              <button id="btnViewTarget" class="view-btn" title="Kondisi Target Misi Selesai">
+                🎯 Target Output
+              </button>
+              <button id="btnViewSplit" class="view-btn" title="Bandingkan Live & Target">
+                ◫ Split
+              </button>
+            </div>
+            
+            <div class="puzzle-select-box">
+              <select id="puzzleSelect" class="compact-select" aria-label="Pilih Teka-Teki">
+                <!-- Populated dynamically by app.js -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Canvases Viewport Area -->
+          <div id="canvasViewport" class="canvases-viewport mode-live">
+            <div class="canvas-box canvas-box-live">
+              <span class="canvas-tag-indicator live">KONDISI SAAT INI / LIVE</span>
+              <canvas id="worldCanvas" width="560" height="340"></canvas>
+            </div>
+
+            <div id="targetCanvasWrapper" class="canvas-box canvas-box-target" style="display: none;">
+              <span class="canvas-tag-indicator target">TARGET OUTPUT SELESAI</span>
+              <canvas id="targetCanvas" width="560" height="340"></canvas>
+            </div>
+          </div>
+
+          <!-- Cockpit Telemetry HUD Strip -->
+          <div class="telemetry-hud-strip">
+            <div class="hud-item">
+              <span class="hud-item-lbl">ROBOT</span>
+              <span id="telPos" class="hud-item-val text-blue">(1, 1)</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-item-lbl">HADAP</span>
+              <span id="telDir" class="hud-item-val">EAST</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-item-lbl">TAS</span>
+              <span id="telBag" class="hud-item-val text-amber">0</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-item-lbl">PETA</span>
+              <span id="telWorld" class="hud-item-val">0</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-item-lbl">LANGKAH</span>
+              <span id="telSteps" class="hud-item-val">0</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-item-lbl">STATUS</span>
+              <span id="telStatus" class="hud-item-val text-emerald">READY</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: CONTROLS & CODE EDITOR -->
+        <div class="editor-pane">
+          
+          <!-- Primary Execution Controls -->
+          <div class="controls-toolbar">
+            <div class="primary-actions-grid">
+              <button id="btnRun" class="btn-action btn-run" title="Jalankan kode otomatis">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <span>Run</span>
+              </button>
+              <button id="btnStep" class="btn-action btn-step" title="Eksekusi satu baris demi satu baris">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <span>Step</span>
+              </button>
+              <button id="btnReset" class="btn-action btn-reset" title="Kembalikan robot ke posisi awal">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                <span>Reset</span>
+              </button>
+              <button id="btnValidate" class="btn-action btn-validate" title="Periksa apakah misi berhasil diselesaikan">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Cek Misi</span>
+              </button>
+            </div>
+
+            <!-- Speed Segmented Selector -->
+            <div class="speed-segmented-dock">
+              <span class="speed-bolt">⚡</span>
+              <button class="speed-btn" data-speed="600">1x</button>
+              <button class="speed-btn" data-speed="350">2x</button>
+              <button class="speed-btn active" data-speed="180">3x</button>
+              <button class="speed-btn" data-speed="50">5x</button>
+              <button class="speed-btn" data-speed="15">Max</button>
+              <input id="speedSlider" type="range" min="1" max="5" value="3" style="display: none;" aria-hidden="true">
+              <span id="speedLabel" style="display: none;">3x</span>
+            </div>
+          </div>
+
+          <!-- Mobile Virtual GvRng Helper Keyboard -->
+          <div class="virtual-key-strip" aria-label="Tombol Cepat Sintaks GvRng untuk HP">
+            <button class="vkey-btn" data-insert="move">move</button>
+            <button class="vkey-btn" data-insert="turnleft">turnleft</button>
+            <button class="vkey-btn" data-insert="pickbeeper">pickbeeper</button>
+            <button class="vkey-btn" data-insert="putbeeper">putbeeper</button>
+            <button class="vkey-btn" data-insert="turnoff">turnoff</button>
+            <button class="vkey-btn vkey-accent" data-insert="do 4:\n    ">do :</button>
+            <button class="vkey-btn vkey-accent" data-insert="while front_is_clear:\n    ">while :</button>
+            <button class="vkey-btn vkey-accent" data-insert="if next_to_a_beeper:\n    ">if :</button>
+            <button class="vkey-btn vkey-accent" data-insert="else:\n    ">else:</button>
+            <button class="vkey-btn" data-insert="front_is_clear">front_is_clear</button>
+            <button class="vkey-btn" data-insert="next_to_a_beeper">next_to_a_beeper</button>
+            <button class="vkey-btn" data-insert="    ">Tab ⇥</button>
+          </div>
+
+          <!-- Subtabs Switcher -->
+          <div class="subtabs-bar" role="tablist">
+            <button class="subtab-btn active" data-subtab="paneEditor" role="tab">
+              💻 Kode (<span id="telLines">0</span> baris)
+            </button>
+            <button class="subtab-btn" data-subtab="paneSoal" role="tab">
+              💡 Target &amp; Kunci
+            </button>
+            <button class="subtab-btn" data-subtab="paneTracing" role="tab">
+              📊 Tracing
+            </button>
+            <button class="subtab-btn" data-subtab="paneKamus" role="tab">
+              ⚡ Kamus Sensor
+            </button>
+            <button id="btnToggleTrail" style="display:none;" aria-hidden="true"></button>
+          </div>
+
+          <!-- SUBTAB 1: CODE EDITOR -->
+          <div id="paneEditor" class="subtab-panel active">
+            <div class="editor-wrap-box">
+              <div id="editorGutter" class="editor-line-gutter" aria-hidden="true"></div>
+              <div class="editor-textarea-holder">
+                <textarea id="editorTextarea" spellcheck="false" placeholder="# Tuliskan kode program GvRng di sini..."></textarea>
+              </div>
+            </div>
+            
+            <div class="editor-action-footer">
+              <button id="btnLoadStarter" class="btn-micro-pill">
+                <span>↺ Kode Awal</span>
+              </button>
+              <button id="btnLoadSolution" class="btn-micro-pill btn-pill-amber">
+                <span>💡 Kunci Contekan</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUBTAB 2: MISSION TARGET & SOLUTION -->
+          <div id="paneSoal" class="subtab-panel">
+            <div class="detail-card-panel">
+              <h4 class="detail-panel-title">Deskripsi &amp; Target Misi Resmi</h4>
+              <p id="missionPrompt" class="detail-panel-desc"></p>
+
+              <h4 class="detail-panel-title">Kunci Jawaban Solusi Terverifikasi</h4>
+              <pre class="code-preview-block"><code id="solutionCodeDisplay"></code></pre>
+            </div>
+          </div>
+
+          <!-- SUBTAB 3: STEP TRACING -->
+          <div id="paneTracing" class="subtab-panel">
+            <div class="detail-card-panel">
+              <h4 class="detail-panel-title">Log Eksekusi Step-by-Step</h4>
+              <div id="termBody" class="tracing-log-terminal">
+                <div class="terminal-line log-system">Engine GvRng v3.0 siap dijalankan.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBTAB 4: SENSOR CHEAT SHEET -->
+          <div id="paneKamus" class="subtab-panel">
+            <div class="detail-card-panel">
+              <h4 class="detail-panel-title">Kamus Lengkap Sensor &amp; Instruksi GvRng</h4>
+              <div class="sensor-cheat-grid">
+                <div class="sensor-card">
+                  <code>front_is_clear</code>
+                  <span>Benar jika tidak ada tembok di depan robot</span>
+                </div>
+                <div class="sensor-card">
+                  <code>left_is_clear</code>
+                  <span>Benar jika sisi kiri robot bebas tembok</span>
+                </div>
+                <div class="sensor-card">
+                  <code>right_is_clear</code>
+                  <span>Benar jika sisi kanan robot bebas tembok</span>
+                </div>
+                <div class="sensor-card">
+                  <code>next_to_a_beeper</code>
+                  <span>Benar jika ada beeper di persimpangan robot</span>
+                </div>
+                <div class="sensor-card">
+                  <code>any_beepers_in_beeper_bag</code>
+                  <span>Benar jika tas robot masih menyimpan beeper</span>
+                </div>
+                <div class="sensor-card">
+                  <code>facing_north / east / south / west</code>
+                  <span>Mendeteksi arah hadap kompas robot</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 2: WORLD BUILDER (INTERACTIVE CUSTOM MAZE AUTHORING STUDIO) -->
+    <!-- ======================================================================= -->
+    <div id="tabBuilder" class="main-tab-view">
+      
+      <!-- Builder Hero Bar -->
+      <section class="builder-hero-bar">
+        <div class="builder-hero-left">
+          <h2 class="builder-main-title">🛠️ World Builder Studio</h2>
+          <p class="builder-main-sub">
+            Rancang peta labirin kustommu sendiri! Tambahkan robot, letakkan tembok dari titik ke titik, atur beeper, dan tentukan target selesai untuk diuji di simulator.
+          </p>
+        </div>
+
+        <!-- Builder Telemetry HUD -->
+        <div class="builder-telemetry-pill">
+          <div class="bstat-item">
+            <span class="bstat-lbl">ROBOT</span>
+            <strong id="builderStatRobot" class="bstat-val text-blue">(1, 1) EAST</strong>
+          </div>
+          <div class="bstat-item">
+            <span class="bstat-lbl">BEEPER</span>
+            <strong id="builderStatBeepers" class="bstat-val text-amber">0 beeper</strong>
+          </div>
+          <div class="bstat-item">
+            <span class="bstat-lbl">TEMBOK</span>
+            <strong id="builderStatWalls" class="bstat-val text-rose">0 tembok</strong>
+          </div>
+          <div class="bstat-item">
+            <span class="bstat-lbl">UKURAN</span>
+            <strong id="builderStatSize" class="bstat-val">15 × 15</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main World Builder Card -->
+      <div class="builder-arena-card">
+        
+        <!-- TOP TOOLBAR: LAYER SWITCHER & TOOLS -->
+        <div class="builder-primary-toolbar">
+          
+          <!-- Submode Layer Switcher -->
+          <div class="builder-submode-group">
+            <button id="btnBuilderLayerInitial" class="builder-submode-btn active" data-layer="initial">
+              <span>🔵 Peta Awal (Initial State)</span>
+            </button>
+            <button id="btnBuilderLayerGoal" class="builder-submode-btn" data-layer="goal">
+              <span>🎯 Target Goal (Kondisi Selesai)</span>
+            </button>
+          </div>
+
+          <!-- Tools Palette -->
+          <div class="builder-tools-palette">
+            <button id="toolWall" class="builder-tool-btn active" data-tool="wall" title="Pasang atau lepas tembok pada garis kisi">
+              <span class="btool-icon">🧱</span>
+              <span>Tembok</span>
+            </button>
+            <button id="toolRobot" class="builder-tool-btn" data-tool="robot" title="Klik pada kotak untuk menaruh posisi robot">
+              <span class="btool-icon">🤖</span>
+              <span>Robot</span>
+            </button>
+            <button id="toolBeeper" class="builder-tool-btn" data-tool="beeper" title="Klik pada kotak untuk menambah/mengurangi beeper">
+              <span class="btool-icon">🟡</span>
+              <span>Beeper</span>
+            </button>
+            <button id="toolEraser" class="builder-tool-btn" data-tool="eraser" title="Klik tembok atau beeper untuk menghapus">
+              <span class="btool-icon">🧹</span>
+              <span>Hapus</span>
+            </button>
+          </div>
+
+          <!-- Robot Direction & Bag Options (Shown when Robot tool is active) -->
+          <div id="robotToolOptions" class="btool-options-strip" style="display: none;">
+            <span class="opt-label">Hadap:</span>
+            <div class="btn-group-segmented">
+              <button class="btn-opt-dir active" data-dir="NORTH">↑ N</button>
+              <button class="btn-opt-dir" data-dir="EAST">→ E</button>
+              <button class="btn-opt-dir" data-dir="SOUTH">↓ S</button>
+              <button class="btn-opt-dir" data-dir="WEST">← W</button>
+            </div>
+            <span class="opt-label" style="margin-left: 8px;">Tas:</span>
+            <input type="number" id="inputRobotBag" class="compact-num-input" value="0" min="0" max="999">
+          </div>
+
+          <!-- Beeper Count Options (Shown when Beeper tool is active) -->
+          <div id="beeperToolOptions" class="btool-options-strip" style="display: none;">
+            <span class="opt-label">Mode:</span>
+            <button id="btnBeeperPlus" class="btn-opt-pill active" data-delta="1">+1 Tambah</button>
+            <button id="btnBeeperMinus" class="btn-opt-pill" data-delta="-1">-1 Kurang</button>
+          </div>
+
+        </div>
+
+        <!-- BUILDER CANVAS AREA -->
+        <div class="builder-canvas-wrapper">
+          <div class="builder-canvas-card">
+            <canvas id="builderCanvas" width="600" height="380"></canvas>
+            <div class="builder-tip-hint">
+              <span>💡 <strong>Tips:</strong> Klik garis antar titik untuk memasang/melepas tembok. Klik kotak untuk meletakkan robot atau beeper.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BUILDER CONTROLS & MANAGEMENT BAR -->
+        <div class="builder-bottom-controls">
+          
+          <!-- Dimensions & Presets -->
+          <div class="builder-control-row">
+            <div class="builder-group-inline">
+              <span class="ctrl-label">Ukuran Kisi:</span>
+              <input type="number" id="builderCols" class="compact-num-input" value="15" min="5" max="35">
+              <span>×</span>
+              <input type="number" id="builderRows" class="compact-num-input" value="15" min="5" max="35">
+              <button id="btnApplyResize" class="btn-builder-ctrl">Terapkan</button>
+            </div>
+
+            <div class="builder-group-inline">
+              <span class="ctrl-label">Preset:</span>
+              <select id="presetSelect" class="compact-select">
+                <option value="empty">Peta Kosong (15×15)</option>
+                <option value="four_towers">4 Menara Beeper (24×14)</option>
+                <option value="zigzag">Lorong Zigzag (18×12)</option>
+                <option value="spiral">Ruang Spiral (15×15)</option>
+              </select>
+              <button id="btnLoadPreset" class="btn-builder-ctrl">Muat</button>
+              <button id="btnClearAll" class="btn-builder-ctrl btn-danger">Bersihkan</button>
+            </div>
+          </div>
+
+          <!-- Save / Export / Test Buttons -->
+          <div class="builder-action-ribbon">
+            <div class="save-custom-group">
+              <input type="text" id="customWorldTitle" class="custom-name-input" placeholder="Beri nama teka-teki kustom ini...">
+              <button id="btnSaveCustomWorld" class="btn-builder-action btn-save">
+                <span>💾 Simpan Peta</span>
+              </button>
+            </div>
+
+            <div class="launch-custom-group">
+              <button id="btnTestInSimulator" class="btn-builder-action btn-launch-primary">
+                <span>🚀 Uji di Arena Simulator Sekarang</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- COLLAPSIBLE .GVRW RAW CODE PANEL -->
+          <div class="builder-gvrw-card">
+            <div class="gvrw-card-head">
+              <strong>📄 Kode Peta GvRng (.gvrw)</strong>
+              <div class="gvrw-head-actions">
+                <button id="btnCopyGvrw" class="btn-micro-pill">Salin</button>
+                <button id="btnDownloadGvrw" class="btn-micro-pill">Unduh .gvrw</button>
+                <button id="btnLoadFromGvrw" class="btn-micro-pill btn-pill-amber">Terapkan Teks</button>
+              </div>
+            </div>
+            <textarea id="builderGvrwText" class="gvrw-textarea" rows="4" spellcheck="false" placeholder="# Format .gvrw (robot, wall, beepers)..."></textarea>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 3: KUIS INTERAKTIF LOGIKA (15 SOAL) -->
+    <!-- ======================================================================= -->
+    <div id="tabQuiz" class="main-tab-view">
+      <div class="quiz-content-wrapper">
+        
+        <!-- Quiz HUD Header -->
+        <div class="quiz-status-card">
+          <div class="quiz-header-top">
+            <span class="quiz-step-label"><span id="quizProgressText">Soal 1 dari 15</span></span>
+            <div style="display:flex; gap:6px;">
+              <span class="quiz-score-badge" style="color:#059669; background:rgba(5, 150, 105, 0.1);">✓ <strong id="quizScoreCorrect">0</strong></span>
+              <span class="quiz-score-badge" style="color:#ef4444; background:rgba(239, 68, 68, 0.1);">✕ <strong id="quizScoreWrong">0</strong></span>
+            </div>
+          </div>
+          <div class="quiz-progress-bar-wrap">
+            <div id="quizProgressFill" class="quiz-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Question Card Container (Rendered by quiz.js) -->
+        <div id="quizContainer">
+          <!-- Rendered dynamically by quiz.js -->
+        </div>
+
+        <!-- Quiz Navigation Footer -->
+        <div class="quiz-nav-footer">
+          <button id="btnPrevQuestion" class="btn-quiz-pager prev" disabled>
+            ← Soal Sebelumnya
+          </button>
+          <button id="btnNextQuestion" class="btn-quiz-pager next">
+            Soal Selanjutnya →
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 4: BANK SOAL & ARSIP PDF RESMI ASLAB -->
+    <!-- ======================================================================= -->
+    <div id="tabArsip" class="main-tab-view">
+      <div class="arsip-content-wrapper">
+        
+        <div class="arsip-intro-card">
+          <h2 class="arsip-intro-title">📚 Bank Soal Praktikum &amp; Arsip PDF Resmi Aslab</h2>
+          <p class="arsip-intro-desc">
+            Koleksi 8 studi kasus ujian Quiz Dasprog B, Quiz Aslab, dan Diktat Praktikum Halaman 51–53 lengkap dengan trik logika dan kunci solusi.
+          </p>
+        </div>
+
+        <!-- Question Archive Cards Container (Rendered by arsip-soal.js) -->
+        <div id="arsipSoalContainer">
+          <!-- Rendered dynamically by arsip-soal.js -->
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 4. MISSION SELECTION MODAL (BOTTOM SHEET ON MOBILE) -->
+  <div id="missionDrawerModal" class="modal-backdrop-overlay" aria-hidden="true">
+    <div class="modal-drawer-sheet" role="dialog" aria-labelledby="modalSheetTitle">
+      <div class="drawer-sheet-head">
+        <div>
+          <h3 id="modalSheetTitle" class="drawer-title">🧩 Katalog Teka-Teki GvRng</h3>
+          <p class="drawer-subtitle">Pilih tantangan untuk langsung dimainkan di Web Simulator</p>
+        </div>
+        <button id="btnCloseMissionDrawer" class="drawer-close-btn" aria-label="Tutup Katalog">✕</button>
+      </div>
+      <div id="missionDrawerGrid" class="drawer-sheet-grid">
+        <!-- Dynamically rendered by app.js from GVR_MISSIONS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MISSION SUCCESS CELEBRATION MODAL -->
+  <div id="celebrationModal" class="modal-backdrop-overlay" aria-hidden="true" style="display: none;">
+    <div class="modal-celebrate-card" role="dialog">
+      <div class="celebrate-icon-box">🎉</div>
+      <h3 class="celebrate-title">Misi Berhasil Diselesaikan!</h3>
+      <p id="celebrateDesc" class="celebrate-desc">Selamat! Kode program GvRng berhasil menyelesaikan target misi tanpa pelanggaran tembok.</p>
+      
+      <div class="celebrate-stats-grid">
+        <div class="cstat-item">
+          <span class="cstat-lbl">Langkah Gerak</span>
+          <strong id="cstatSteps" class="cstat-val">0</strong>
+        </div>
+        <div class="cstat-item">
+          <span class="cstat-lbl">Baris Kode</span>
+          <strong id="cstatLines" class="cstat-val">0</strong>
+        </div>
+        <div class="cstat-item">
+          <span class="cstat-lbl">Beeper Terkumpul</span>
+          <strong id="cstatBeepers" class="cstat-val">0</strong>
+        </div>
+      </div>
+
+      <div class="celebrate-actions-row">
+        <button id="btnCloseCelebration" class="btn-action btn-validate" style="width: 100%;">
+          Lanjut / Selesai
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification" class="gvr-app-toast"></div>
+
+  <!-- Scripts -->
+  <script src="simulator.js?v=2.0"></script>
+  <script src="interpreter.js?v=2.0"></script>
+  <script src="maps.js?v=2.0"></script>
+  <script src="world-builder.js?v=2.0"></script>
+  <script src="quiz-data.js?v=2.0"></script>
+  <script src="quiz.js?v=2.0"></script>
+  <script src="arsip-soal.js?v=2.0"></script>
+  <script src="app.js?v=2.0"></script>
+</body>
+</html>
