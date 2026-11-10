@@ -880,6 +880,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Window Resize & Orientation Change listener to maintain sharp responsive canvas
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      renderSimulatorCanvases();
+    }, 100);
+  });
+
   // ==========================================
   // INITIALIZATION
   // ==========================================

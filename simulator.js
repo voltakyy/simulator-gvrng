@@ -548,17 +548,50 @@ class GvrWorld {
   // ==========================================
   getTransform(canvas) {
     const dpr = window.devicePixelRatio || 1;
-    const padX = 36;
-    const padY = 36;
-    const availW = canvas.width / dpr - padX * 2;
-    const availH = canvas.height / dpr - padY * 2;
 
-    const cellSize = Math.min(availW / this.cols, availH / this.rows, 42);
+    // 1. Measure the container's CSS layout width
+    const parent = canvas.parentElement;
+    let containerW = 560;
+    if (parent && parent.clientWidth > 0) {
+      containerW = parent.clientWidth - 16;
+    } else if (canvas.clientWidth > 0) {
+      containerW = canvas.clientWidth;
+    }
+    const cssW = Math.max(280, Math.min(720, containerW));
+
+    // Responsive padding based on available width:
+    // Mobile (<420px): 18px padding
+    // Tablet (<580px): 24px padding
+    // Desktop: 32px padding
+    const padX = cssW < 420 ? 18 : (cssW < 580 ? 24 : 32);
+    const padY = cssW < 420 ? 18 : (cssW < 580 ? 24 : 32);
+
+    const availW = cssW - padX * 2;
+    // Calculate cell size so all columns fit within available width
+    let cellSize = Math.floor(availW / this.cols);
+    cellSize = Math.max(12, Math.min(42, cellSize));
 
     const gridW = this.cols * cellSize;
     const gridH = this.rows * cellSize;
-    const startX = padX + ((availW - gridW) / 2);
-    const startY = (canvas.height / dpr) - padY - ((availH - gridH) / 2);
+
+    // Determine canvas height needed for the grid + padding
+    const idealH = gridH + padY * 2;
+    const cssH = Math.max(220, Math.min(560, idealH));
+    const availH = cssH - padY * 2;
+
+    // 2. Synchronize Canvas internal bitmap dimensions with physical device pixels (HiDPI / Retina)
+    const pixelW = Math.round(cssW * dpr);
+    const pixelH = Math.round(cssH * dpr);
+    if (canvas.width !== pixelW || canvas.height !== pixelH) {
+      canvas.width = pixelW;
+      canvas.height = pixelH;
+    }
+    canvas.style.width = `${cssW}px`;
+    canvas.style.height = `${cssH}px`;
+
+    // Center the grid within the canvas
+    const startX = padX + Math.max(0, (availW - gridW) / 2);
+    const startY = cssH - padY - Math.max(0, (availH - gridH) / 2);
 
     // Grid intersection dot position: gx: 1..cols+1, gy: 1..rows+1
     const toPx = (gx, gy) => ({
@@ -577,7 +610,7 @@ class GvrWorld {
       gy: (startY - py) / cellSize + 1
     });
 
-    return { dpr, padX, padY, availW, availH, cellSize, startX, startY, toPx, toCellCenter, fromPx };
+    return { dpr, cssW, cssH, padX, padY, availW, availH, cellSize, startX, startY, toPx, toCellCenter, fromPx };
   }
 
   hitTest(px, py, canvas, threshold = 20) {
@@ -668,40 +701,42 @@ class GvrWorld {
   render(canvas, options = {}) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const { dpr, cellSize, startX, startY, toPx, toCellCenter } = this.getTransform(canvas);
+    const { dpr, cssW, cssH, padX, padY, cellSize, startX, startY, toPx, toCellCenter } = this.getTransform(canvas);
 
     ctx.save();
     ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    ctx.clearRect(0, 0, cssW, cssH);
 
     // Background paper
     ctx.fillStyle = options.isTargetView ? '#fcfbf7' : '#ffffff';
-    ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    ctx.fillRect(0, 0, cssW, cssH);
 
     // 1. Grid Intersections (Dots)
+    const dotR = Math.max(1.5, Math.min(2.5, cellSize * 0.1));
     for (let x = 1; x <= this.cols + 1; x++) {
       for (let y = 1; y <= this.rows + 1; y++) {
         const { px, py } = toPx(x, y);
         ctx.beginPath();
-        ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+        ctx.arc(px, py, dotR, 0, Math.PI * 2);
         ctx.fillStyle = options.isTargetView ? '#cbd5e1' : '#94a3b8';
         ctx.fill();
       }
     }
 
     // Numbered Axis Labels (Avenue columns & Street rows)
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    const axisFontSize = Math.max(8, Math.min(11, Math.round(cellSize * 0.52)));
+    ctx.font = `${axisFontSize}px "JetBrains Mono", ui-monospace, monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#64748b';
 
     for (let x = 1; x <= this.cols; x++) {
       const { px } = toCellCenter(x, 1);
-      ctx.fillText(x.toString(), px, startY + 18);
+      ctx.fillText(x.toString(), px, startY + (padY * 0.55));
     }
     for (let y = 1; y <= this.rows; y++) {
       const { py } = toCellCenter(1, y);
-      ctx.fillText(y.toString(), startX - 18, py);
+      ctx.fillText(y.toString(), startX - (padX * 0.55), py);
     }
 
     // 1b. Boundary Walls (West of Avenue 1 & South of Street 1)
@@ -811,8 +846,8 @@ class GvrWorld {
       const { px, py } = toCellCenter(gx, gy);
 
       // Proportional radius (never collides with walls or adjacent beepers)
-      const bRadius = Math.max(7.5, Math.min(13, cellSize * 0.30));
-      const fontSize = Math.max(8, Math.min(12, Math.round(bRadius * 1.05)));
+      const bRadius = Math.max(4.5, Math.min(14, cellSize * 0.32));
+      const fontSize = Math.max(7, Math.min(12, Math.round(bRadius * 1.1)));
 
       // Main Token Disc (Ocean Blue Gradient)
       ctx.beginPath();
@@ -862,7 +897,7 @@ class GvrWorld {
       else if (this.robot.dir === 'EAST') angle = 0;
       ctx.rotate(angle);
 
-      const rSize = cellSize * 0.38;
+      const rSize = Math.max(4.5, cellSize * 0.36);
       ctx.beginPath();
       ctx.moveTo(rSize, 0);
       ctx.lineTo(-rSize * 0.75, -rSize * 0.75);
@@ -899,16 +934,16 @@ class GvrWorld {
       if (beeperCountUnderRobot > 0) {
         const badgeX = px + cellSize * 0.28;
         const badgeY = py - cellSize * 0.28;
-        const miniR = Math.max(5, Math.min(8, cellSize * 0.18));
+        const miniR = Math.max(3.5, Math.min(8, cellSize * 0.18));
         ctx.beginPath();
         ctx.arc(badgeX, badgeY, miniR, 0, Math.PI * 2);
         ctx.fillStyle = '#0284c7';
         ctx.fill();
         ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.2;
+        ctx.lineWidth = 1.0;
         ctx.stroke();
         ctx.fillStyle = '#ffffff';
-        ctx.font = `bold ${Math.max(6.5, Math.round(miniR * 1.05))}px "JetBrains Mono", monospace`;
+        ctx.font = `bold ${Math.max(6, Math.round(miniR * 1.05))}px "JetBrains Mono", monospace`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(beeperCountUnderRobot.toString(), badgeX, badgeY + 0.5);
