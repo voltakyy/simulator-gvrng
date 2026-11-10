@@ -118,94 +118,73 @@ define susur:
     # TODO: Gunakan if-else untuk mengikuti lorong
     pass
 `,
-    solutionCode: `# Solusi Resmi Quiz Dasprog B Soal 1 (21 Baris, Batas: 35 Baris)
-# Logika Simetris: 16 langkah ke puncak + 16 langkah pulang = do 32
+    solutionCode: `# Solusi Elegan & Mudah Diingat (Hanya 13 Baris, Batas: 35 Baris)
 define turnright:
     do 3:
         turnleft
 
-define susur:
+define langkah:
     if right_is_clear:
         turnright
-        move
     else:
-        if front_is_clear:
-            move
-        else:
-            if left_is_clear:
-                turnleft
-                move
-            else:
-                do 2:
-                    turnleft
-                move
+        while front_is_blocked:
+            turnleft
+    move
 
 do 32:
-    susur
+    langkah
 turnoff`,
-    logicExplanation: `Rumus Menghitung Langkah Ujian (Mudah Diingat!):
-1. Lorong ini memiliki 3 menara bertingkat naik-turun yang simetris.
-2. Perjalanan dari pintu masuk (4, 7) ke puncak menara ketiga adalah 16 langkah (naik menara 1: 4 langkah, menara 2: 5 langkah, menara 3: 7 langkah = 16).
-3. Perjalanan pulang menuruni ketiga menara kembali ke pintu masuk juga tepat 16 langkah.
-4. Total langkah: 16 + 16 = 32 langkah (do 32: susur). Tidak perlu menghitung sudut satu-satu!
-5. Alternatif tanpa angka 32: tulis 'do 16: susur' lalu 'do 16: susur' (pergi dan pulang).`,
+    logicExplanation: `Logika Sederhana & Ramah Ujian (Mudah Dihafal!):
+1. Fungsi 'langkah' hanya terdiri dari 5 baris yang sangat intuitif:
+   - Jika kanan kosong, belok kanan (if right_is_clear: turnright).
+   - Jika tidak, selama depan terhalang tembok, belok kiri (else: while front_is_blocked: turnleft).
+   - Maju satu petak (move).
+2. Rumus Angka 32 (Simetris Pergi-Pulang):
+   - Perjalanan dari pintu masuk ke puncak menara ke-3: 16 langkah.
+   - Perjalanan pulang menuruni ketiga menara kembali ke pintu masuk: 16 langkah.
+   - Total: 16 + 16 = 32 langkah (do 32: langkah).
+3. Alternatif Ujian (Skema 2): Bisa ditulis 'do 16: langkah' lalu 'do 16: langkah' (pergi dan pulang).`,
     alternativeSolutions: [
       {
-        name: 'Skema 1: Solusi Resmi Aslab (do 32 — Paling Ringkas 21 Baris)',
-        desc: 'Standar resmi dosen & aslab: 16 langkah pergi + 16 langkah pulang = do 32.',
+        name: 'Skema 1: Kaidah Susur Dinding Kanan Ringkas (13 Baris — Rekomendasi)',
+        desc: 'Hanya 13 baris kode, tanpa if-else bersarang rumit.',
         code: `define turnright:
     do 3:
         turnleft
 
-define susur:
+define langkah:
     if right_is_clear:
         turnright
-        move
     else:
-        if front_is_clear:
-            move
-        else:
-            if left_is_clear:
-                turnleft
-                move
-            else:
-                do 2:
-                    turnleft
-                move
+        while front_is_blocked:
+            turnleft
+    move
 
 do 32:
-    susur
+    langkah
 turnoff`
       },
       {
         name: 'Skema 2: Simetris Pergi-Pulang (do 16 pergi, do 16 pulang)',
-        desc: 'Lebih mudah dibayangkan di kepala: 16 langkah ke puncak, 16 langkah kembali pulang.',
+        desc: 'Memisahkan rute pergi ke puncak dan rute pulang ke pintu awal.',
         code: `define turnright:
     do 3:
         turnleft
 
-define susur:
+define langkah:
     if right_is_clear:
         turnright
-        move
     else:
-        if front_is_clear:
-            move
-        else:
-            if left_is_clear:
-                turnleft
-                move
-            else:
-                do 2:
-                    turnleft
-                move
+        while front_is_blocked:
+            turnleft
+    move
 
 # 16 langkah pergi ke puncak
 do 16:
-    susur
+    langkah
 # 16 langkah pulang ke pintu awal
 do 16:
-    susur
+    langkah
 turnoff`
       }
     ]
@@ -256,76 +235,55 @@ define ambil_sampah:
     # TODO: Angkat beeper jika ada
     pass
 `,
-    solutionCode: `# Solusi Resmi Quiz Dasprog B Soal 2 (28 Baris Kode)
-# Logika Standar: Kaidah tangan kanan menyapu seluruh lorong (34 langkah)
+    solutionCode: `# Solusi Elegan & Ramah Ujian (19 Baris Kode)
 define turnright:
     do 3:
         turnleft
 
-define ambil_semua:
+define langkah:
     while next_to_a_beeper:
         pickbeeper
-
-define langkah:
-    ambil_semua
     if right_is_clear:
         turnright
-        move
     else:
-        if front_is_clear:
-            move
-        else:
-            if left_is_clear:
-                turnleft
-                move
-            else:
-                do 2:
-                    turnleft
-                move
+        while front_is_blocked:
+            turnleft
+    move
 
 do 34:
     langkah
-ambil_semua
+while next_to_a_beeper:
+    pickbeeper
 while not_facing_west:
     turnleft
 turnoff`,
-    logicExplanation: `Rumus Langkah Ujian (Quiz Dasprog B Soal 2):
-1. Robot menyusuri seluruh dinding kanan gedung dan memungut beeper di setiap ruangan.
-2. Panjang total sirkuit gedung adalah 34 langkah.
+    logicExplanation: `Logika Bersih & Mudah Dihafal Mahasiswa:
+1. Menggunakan pola fungsi 'langkah' yang persis sama dengan Misi 2, ditambah pemungutan sampah 'while next_to_a_beeper: pickbeeper'.
+2. Robot menyusuri seluruh dinding kanan gedung sebanyak 34 langkah (keliling sirkuit lorong gedung).
 3. Setelah 34 langkah, robot kembali tiba di pintu masuk (4, 7).
-4. Pastikan robot menghadap barat dengan 'while not_facing_west: turnleft', lalu 'turnoff'.`,
+4. Ambil beeper jika ada di titik akhir, lalu arahkan robot menghadap barat (while not_facing_west: turnleft) dan turnoff!`,
     alternativeSolutions: [
       {
-        name: 'Skema 1: Solusi Resmi Quiz Dasprog B (do 34)',
-        desc: 'Sesuai kunci resmi praktikum: ambil_semua beeper di tiap langkah lalu 34 langkah susur.',
+        name: 'Skema 1: Kaidah Susur Dinding Kanan + 34 Langkah (Rekomendasi 19 Baris)',
+        desc: 'Pola langkah ringkas dan konsisten dengan Misi 2.',
         code: `define turnright:
     do 3:
         turnleft
 
-define ambil_semua:
+define langkah:
     while next_to_a_beeper:
         pickbeeper
-
-define langkah:
-    ambil_semua
     if right_is_clear:
         turnright
-        move
     else:
-        if front_is_clear:
-            move
-        else:
-            if left_is_clear:
-                turnleft
-                move
-            else:
-                do 2:
-                    turnleft
-                move
+        while front_is_blocked:
+            turnleft
+    move
 
 do 34:
     langkah
-ambil_semua
+while next_to_a_beeper:
+    pickbeeper
 while not_facing_west:
     turnleft
 turnoff`
@@ -387,7 +345,6 @@ define ambil_semua:
         pickbeeper
 `,
     solutionCode: `# Solusi Resmi Aslab 2 (17 Baris Kode, Batas: 22 Baris)
-# Rumus Cepat: 4 Menara x 22 Langkah = do 88 (atau do 4: do 22: langkah)
 define turnright:
     do 3:
         turnleft
@@ -411,7 +368,7 @@ turnoff`,
 1. Peta terdiri dari 4 Menara yang polanya identik naik-turun.
 2. Setiap 1 menara (naik ke puncak lalu turun ke lembah) memakan waktu tepat 22 langkah.
 3. Karena ada 4 menara: 4 x 22 = 88 langkah!
-4. Alternatif penulisan agar tidak perlu mengingat 88: gunakan loop bertingkat 'do 4: do 22: langkah' atau 'do 2: do 44: langkah' (44 langkah pergi + 44 langkah pulang).
+4. Alternatif Penulisan saat Ujian (Skema 2): Mahasiswa bisa menulis 'do 4: do 22: langkah' (4 menara masing-masing 22 langkah) atau 'do 2: do 44: langkah' (44 langkah pergi + 44 langkah pulang).
 5. Setelah 88 langkah selesai, robot tiba di (4, 4) barat. Cukup 'move' ke (3, 4), 'turnright', lalu 'move' ke (3, 5) NORTH dan 'turnoff' sesuai Gambar 2.2 Aslab!`,
     alternativeSolutions: [
       {
@@ -439,7 +396,7 @@ turnoff`
       },
       {
         name: 'Skema 2: Modular 4 Menara x 22 Langkah (do 4: do 22: langkah)',
-        desc: 'Sangat mudah diingat: 4 menara masing-masing 22 langkah.',
+        desc: 'Sangat mudah diingat: 4 menara masing-masing 22 langkah naik-turun.',
         code: `define turnright:
     do 3:
         turnleft
@@ -732,35 +689,6 @@ do 9:
     move
 turnleft
 turnleft
-turnoff`
-      },
-      {
-        name: 'Skema 2: Modular move3 (22 Baris)',
-        desc: 'Menggunakan fungsi move3 untuk melangkah 3 petak antar kotak dan saat pulang.',
-        code: `define move3:
-    do 3:
-        move
-
-define circumference:
-    do 4:
-        if next_to_a_beeper:
-            pickbeeper
-        turnleft
-        move
-        if next_to_a_beeper:
-            pickbeeper
-        move
-
-do 3:
-    move3
-    circumference
-
-do 2:
-    turnleft
-do 3:
-    move3
-do 2:
-    turnleft
 turnoff`
       }
     ]
