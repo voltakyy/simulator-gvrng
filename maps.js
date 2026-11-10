@@ -582,13 +582,87 @@ turnleft
 turnleft
 turnoff`,
     logicExplanation: `Catatan Resmi Buku Hal 53:\n"Program pertama memiliki instruksi yang lebih sedikit, yaitu 20 baris. Pada program kedua, robot mengeksekusi instruksi gerakan yang lebih sedikit, yaitu 22 kali, sedangkan pada program pertama, robot mengeksekusi 26 instruksi gerakan. Program kedua lebih hemat energi, robot!"\n\nAlternatif 2 mengoptimalkan titik masuk dan keluar setiap kotak sehingga jalur kembali ke titik awal hanya butuh 7 langkah (bukan 9 langkah)!`
-  }
-];
+  },
+  // =========================================================================
+  // MISI 9: MAMPIR KE RUANGAN & AMBIL BEEPER DI UJUNG
+  // Tantangan Spesial User: Algoritma Wall-Follower (Menyusuri Ruangan Lorong)
+  // =========================================================================
+  {
+    id: 'mampir_ruangan',
+    number: 9,
+    title: 'Mampir ke Ruangan & Ambil Beeper di Ujung',
+    source: 'Tantangan Spesial: Algoritma Wall-Follower (Menyusuri Ruangan Lorong)',
+    category: 'Navigasi Cerdas & Algoritma Susur Dinding',
+    badge: 'Wall Follower / Susur Kiri',
+    badgeType: 'badge-blue',
+    prompt: 'Robot berada di posisi (5, 2) menghadap SOUTH di dalam sirkuit lorong berliku dengan berbagai lekukan ruangan.\n\nRobot harus menyusuri lorong, mampir ke setiap lekukan ruangan (kiri terbuka), dan terus melaju hingga mencapai beeper di ujung lorong pada posisi (3, 3), mengambil beeper tersebut, lalu mematikan diri (turnoff).',
+    constraints: {
+      maxLines: 15,
+      requiredKeywords: ['while'],
+      mustClearAllBeepers: true,
+      mustReturnToStart: false,
+      mustTurnoff: true
+    },
+    cols: 14,
+    rows: 12,
+    initialRobot: { x: 5, y: 2, dir: 'SOUTH', beepers: 0 },
+    initialBeepers: [
+      [3, 3, 1]
+    ],
+    targetState: {
+      description: 'Robot telah menyusuri lorong dan mampir ke setiap ruangan, mengambil 1 beeper di ujung lorong pada posisi (3, 3) menghadap SOUTH, lalu turnoff.',
+      finalRobot: { x: 3, y: 3, dir: 'SOUTH', beepers: 1, isOff: true },
+      remainingBeepers: 0
+    },
+    hWalls: [
+      [3, 1], [3, 2], [3, 9],
+      [4, 1], [4, 2], [4, 5], [4, 6], [4, 8], [4, 9],
+      [5, 1], [5, 3], [5, 8], [5, 9],
+      [6, 1], [6, 2], [6, 8], [6, 9],
+      [7, 1], [7, 2], [7, 7], [7, 9],
+      [8, 1], [8, 2], [8, 8], [8, 9],
+      [9, 1], [9, 2], [9, 3], [9, 4], [9, 8], [9, 9],
+      [10, 1], [10, 9]
+    ],
+    vWalls: [
+      [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9],
+      [3, 3], [3, 4], [3, 5], [3, 7], [3, 8],
+      [4, 3], [4, 6],
+      [5, 3],
+      [6, 8],
+      [7, 8],
+      [8, 4],
+      [9, 3], [9, 5], [9, 6], [9, 7], [9, 8],
+      [10, 2], [10, 3], [10, 4], [10, 5], [10, 6], [10, 7], [10, 8], [10, 9]
+    ],
+    starterCode: `# Misi 9: Mampir ke Ruangan & Ambil Beeper di Ujung
+# Gunakan logika susur dinding kiri (left-hand rule)
 
-/**
- * Register a user-created Custom World as an active Mission in GVR_MISSIONS
- */
-window.registerCustomMission = function(customWorld) {
+while not_next_to_a_beeper:
+    if left_is_clear:
+        turnleft
+    if front_is_clear:
+        move
+    else:
+        turnleft
+pickbeeper
+turnoff`,
+    solutionCode: `while not_next_to_a_beeper:
+    if left_is_clear:
+        turnleft
+    if front_is_clear:
+        move
+    else:
+        turnleft
+pickbeeper
+turnoff`,
+    logicExplanation: `Robot mengimplementasikan algoritma Wall Follower (susur dinding sisi kiri):
+1. Selalu memprioritaskan belok kiri jika sisi kiri terbuka ('if left_is_clear: turnleft') sehingga robot selalu mampir memeriksa setiap lekukan ruangan.
+2. Jika depan terbuka, robot melangkah maju ('if front_is_clear: move').
+3. Jika depan terhalang tembok, robot berputar ke kiri ('else: turnleft') untuk menyesuaikan arah lorong.
+4. Ketika mendeteksi beeper di ujung lorong (posisi 3, 3), perulangan selesai, robot memungut beeper ('pickbeeper') lalu mematikan sistem ('turnoff').`
+  }
+];$2 = function(customWorld) {
   const existingIdx = window.GVR_MISSIONS.findIndex(m => m.id === 'misi-custom');
 
   const hWalls = [];
