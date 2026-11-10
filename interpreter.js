@@ -56,30 +56,38 @@ class GvrInterpreter {
 
     const functions = new Map();
 
-    const parseBlock = (startIndex, expectedIndent) => {
+    const parseBlock = (startIndex, blockIndent) => {
       const statements = [];
       let i = startIndex;
 
       while (i < rawTokens.length) {
         const tok = rawTokens[i];
 
-        if (tok.indent < expectedIndent) {
+        if (tok.indent < blockIndent) {
           // Block ended
           break;
         }
 
-        if (tok.indent > expectedIndent) {
-          throw new Error(`Line ${tok.lineNo}: Kesalahan indentasi (${tok.text})`);
+        if (tok.indent > blockIndent) {
+          throw new Error(`Line ${tok.lineNo}: Kesalahan indentasi tak terduga (${tok.text})`);
         }
 
         const text = tok.text;
+
+        const getChildBlock = (nextIndex) => {
+          if (nextIndex >= rawTokens.length || rawTokens[nextIndex].indent <= blockIndent) {
+            throw new Error(`Line ${tok.lineNo}: Diharapkan blok kode yang terindentasi setelah '${tok.text}'`);
+          }
+          const childIndent = rawTokens[nextIndex].indent;
+          return parseBlock(nextIndex, childIndent);
+        };
 
         // 1. define <name>:
         if (text.startsWith('define ') && text.endsWith(':')) {
           const fnName = text.slice(7, -1).trim();
           if (!fnName) throw new Error(`Line ${tok.lineNo}: Nama fungsi kosong pada define`);
           
-          const child = parseBlock(i + 1, expectedIndent + 4);
+          const child = getChildBlock(i + 1);
           functions.set(fnName, {
             name: fnName,
             lineNo: tok.lineNo,
@@ -97,7 +105,7 @@ class GvrInterpreter {
             throw new Error(`Line ${tok.lineNo}: 'do' membutuhkan angka positif (misal: 'do 4:')`);
           }
 
-          const child = parseBlock(i + 1, expectedIndent + 4);
+          const child = getChildBlock(i + 1);
           statements.push({
             type: 'DO_LOOP',
             count,
@@ -111,7 +119,7 @@ class GvrInterpreter {
         // 3. while <cond>:
         if (text.startsWith('while ') && text.endsWith(':')) {
           const cond = text.slice(6, -1).trim();
-          const child = parseBlock(i + 1, expectedIndent + 4);
+          const child = getChildBlock(i + 1);
           statements.push({
             type: 'WHILE_LOOP',
             condition: cond,
@@ -125,7 +133,7 @@ class GvrInterpreter {
         // 4. if <cond>: / elif / else:
         if (text.startsWith('if ') && text.endsWith(':')) {
           const cond = text.slice(3, -1).trim();
-          const child = parseBlock(i + 1, expectedIndent + 4);
+          const child = getChildBlock(i + 1);
           const ifNode = {
             type: 'IF_BRANCH',
             condition: cond,
@@ -138,21 +146,28 @@ class GvrInterpreter {
           i = child.nextIndex;
 
           // Check consecutive elif / else at same indent
-          while (i < rawTokens.length && rawTokens[i].indent === expectedIndent) {
-            const nextText = rawTokens[i].text;
+          while (i < rawTokens.length && rawTokens[i].indent === blockIndent) {
+            const nextTok = rawTokens[i];
+            const nextText = nextTok.text;
             if (nextText.startsWith('elif ') && nextText.endsWith(':')) {
               const elifCond = nextText.slice(5, -1).trim();
-              const elifChild = parseBlock(i + 1, expectedIndent + 4);
+              if (i + 1 >= rawTokens.length || rawTokens[i + 1].indent <= blockIndent) {
+                throw new Error(`Line ${nextTok.lineNo}: Diharapkan blok kode setelah elif`);
+              }
+              const elifChild = parseBlock(i + 1, rawTokens[i + 1].indent);
               ifNode.elifBranches.push({
                 condition: elifCond,
-                lineNo: rawTokens[i].lineNo,
+                lineNo: nextTok.lineNo,
                 body: elifChild.statements
               });
               i = elifChild.nextIndex;
             } else if (nextText === 'else:') {
-              const elseChild = parseBlock(i + 1, expectedIndent + 4);
+              if (i + 1 >= rawTokens.length || rawTokens[i + 1].indent <= blockIndent) {
+                throw new Error(`Line ${nextTok.lineNo}: Diharapkan blok kode setelah else`);
+              }
+              const elseChild = parseBlock(i + 1, rawTokens[i + 1].indent);
               ifNode.elseBranch = {
-                lineNo: rawTokens[i].lineNo,
+                lineNo: nextTok.lineNo,
                 body: elseChild.statements
               };
               i = elseChild.nextIndex;
@@ -184,7 +199,10 @@ class GvrInterpreter {
 
   // Evaluate sensor condition in current world state
   evalCondition(cond) {
-    const c = cond.trim().toLowerCase();
+    let c = cond.trim().toLowerCase();
+    if (c.startsWith('(') && c.endsWith(')')) {
+      c = c.slice(1, -1).trim();
+    }
     switch (c) {
       case 'front_is_clear': return this.world.frontIsClear();
       case 'front_is_blocked': return !this.world.frontIsClear();

@@ -80,7 +80,7 @@ class GvrWorld {
 
   // Add horizontal wall segment North of Street s along Avenue a (connects dot (a, s+1) to (a+1, s+1))
   addHWall(a, s) {
-    if (a < 1 || a > this.cols || s < 1 || s >= this.rows) return;
+    if (a < 1 || a > this.cols || s < 1 || s > this.rows) return;
     this.hWalls.add(`${a},${s}`);
   }
 
@@ -97,7 +97,7 @@ class GvrWorld {
   }
 
   toggleHWall(a, s) {
-    if (a < 1 || a > this.cols || s < 1 || s >= this.rows) return false;
+    if (a < 1 || a > this.cols || s < 1 || s > this.rows) return false;
     const key = `${a},${s}`;
     if (this.hWalls.has(key)) {
       this.hWalls.delete(key);
@@ -110,7 +110,7 @@ class GvrWorld {
 
   // Add vertical wall segment East of Avenue a along Street s (connects dot (a+1, s) to (a+1, s+1))
   addVWall(a, s) {
-    if (a < 1 || a >= this.cols || s < 1 || s > this.rows) return;
+    if (a < 1 || a > this.cols || s < 1 || s > this.rows) return;
     this.vWalls.add(`${a},${s}`);
   }
 
@@ -119,7 +119,7 @@ class GvrWorld {
   }
 
   toggleVWall(a, s) {
-    if (a < 1 || a >= this.cols || s < 1 || s > this.rows) return false;
+    if (a < 1 || a > this.cols || s < 1 || s > this.rows) return false;
     const key = `${a},${s}`;
     if (this.vWalls.has(key)) {
       this.vWalls.delete(key);
@@ -400,10 +400,12 @@ class GvrWorld {
     if (!text || typeof text !== 'string') return;
     this.clearAll();
 
-    let maxAvenue = 15;
-    let maxStreet = 15;
-
     const lines = text.split('\n');
+
+    // Pass 1: Compute maximum avenue & street to size the grid dynamically
+    let maxAvenue = 10;
+    let maxStreet = 10;
+
     lines.forEach(raw => {
       const clean = raw.trim();
       if (!clean || clean.startsWith('#')) return;
@@ -411,7 +413,6 @@ class GvrWorld {
       const cmd = parts[0].toLowerCase();
 
       if (cmd === 'size' && parts.length >= 3) {
-        // Optional legacy fallback if present
         const c = parseInt(parts[1], 10);
         const r = parseInt(parts[2], 10);
         if (!isNaN(c) && !isNaN(r)) {
@@ -419,6 +420,49 @@ class GvrWorld {
           maxStreet = Math.max(maxStreet, r);
         }
       } else if (cmd === 'robot' && parts.length >= 4) {
+        const x = parseInt(parts[1], 10) || 0;
+        const y = parseInt(parts[2], 10) || 0;
+        maxAvenue = Math.max(maxAvenue, x);
+        maxStreet = Math.max(maxStreet, y);
+      } else if (cmd === 'wall' && parts.length >= 4) {
+        const a = parseInt(parts[1], 10) || 0;
+        const s = parseInt(parts[2], 10) || 0;
+        const dir = (parts[3] || '').toUpperCase();
+        if (dir.startsWith('N')) {
+          maxAvenue = Math.max(maxAvenue, a + 1);
+          maxStreet = Math.max(maxStreet, s + 1);
+        } else if (dir.startsWith('S')) {
+          maxAvenue = Math.max(maxAvenue, a + 1);
+          maxStreet = Math.max(maxStreet, s);
+        } else if (dir.startsWith('E')) {
+          maxAvenue = Math.max(maxAvenue, a + 1);
+          maxStreet = Math.max(maxStreet, s + 1);
+        } else if (dir.startsWith('W')) {
+          maxAvenue = Math.max(maxAvenue, a);
+          maxStreet = Math.max(maxStreet, s + 1);
+        }
+      } else if (cmd === 'beepers' && parts.length >= 4) {
+        const x = parseInt(parts[1], 10) || 0;
+        const y = parseInt(parts[2], 10) || 0;
+        maxAvenue = Math.max(maxAvenue, x);
+        maxStreet = Math.max(maxStreet, y);
+      }
+    });
+
+    // Ensure the grid fits the map with at least 1-unit margin (minimum 10x10, maximum 40x40)
+    const newCols = Math.min(40, Math.max(10, maxAvenue + 1));
+    const newRows = Math.min(40, Math.max(10, maxStreet + 1));
+    this.cols = newCols;
+    this.rows = newRows;
+
+    // Pass 2: Populate robot, walls, and beepers safely
+    lines.forEach(raw => {
+      const clean = raw.trim();
+      if (!clean || clean.startsWith('#')) return;
+      const parts = clean.split(/\s+/);
+      const cmd = parts[0].toLowerCase();
+
+      if (cmd === 'robot' && parts.length >= 4) {
         const x = parseInt(parts[1], 10);
         const y = parseInt(parts[2], 10);
         let dirLetter = parts[3].toUpperCase();
@@ -428,15 +472,11 @@ class GvrWorld {
         else if (dirLetter.startsWith('W')) dir = 'WEST';
         else if (dirLetter.startsWith('E')) dir = 'EAST';
         const beepers = parts[4] !== undefined ? parseInt(parts[4], 10) : 0;
-        maxAvenue = Math.max(maxAvenue, x + 2);
-        maxStreet = Math.max(maxStreet, y + 2);
         this.setRobot(x, y, dir, isNaN(beepers) ? 0 : beepers);
       } else if (cmd === 'wall' && parts.length >= 4) {
         const a = parseInt(parts[1], 10);
         const s = parseInt(parts[2], 10);
         const dir = parts[3].toUpperCase();
-        maxAvenue = Math.max(maxAvenue, a + 2);
-        maxStreet = Math.max(maxStreet, s + 2);
         if (dir.startsWith('N')) this.addHWall(a, s);
         else if (dir.startsWith('S')) this.addHWall(a, s - 1);
         else if (dir.startsWith('E')) this.addVWall(a, s);
@@ -445,15 +485,9 @@ class GvrWorld {
         const x = parseInt(parts[1], 10);
         const y = parseInt(parts[2], 10);
         const count = parseInt(parts[3], 10);
-        maxAvenue = Math.max(maxAvenue, x + 2);
-        maxStreet = Math.max(maxStreet, y + 2);
         if (!isNaN(count) && count > 0) this.setBeeper(x, y, count);
       }
     });
-
-    if (maxAvenue > this.cols || maxStreet > this.rows) {
-      this.resize(Math.max(this.cols, maxAvenue), Math.max(this.rows, maxStreet));
-    }
 
     this.saveSnapshot();
   }

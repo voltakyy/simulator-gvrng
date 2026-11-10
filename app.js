@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset controls
     stopRun();
     updateTelemetry('READY');
-    updateGvrwPanel();
+    updateGvrwPanel(true);
     renderSimulatorCanvases();
     updateCarouselActive();
   }
@@ -396,9 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function updateGvrwPanel() {
+  function updateGvrwPanel(force = false) {
     const textarea = document.getElementById('builderGvrwText');
-    if (textarea && document.activeElement !== textarea) {
+    if (textarea && (force || !textarea.value.trim())) {
       textarea.value = world.toGvrw();
     }
   }
@@ -577,6 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (interpreter.isFinished || !interpreter.stack.length) {
+      world.restoreSnapshot();
       const code = editorTextarea ? editorTextarea.value : '';
       if (!code.trim()) {
         showToast('⚠️ Editor kosong! Tuliskan kode program GvRng terlebih dahulu.');
@@ -589,6 +590,8 @@ document.addEventListener('DOMContentLoaded', () => {
         logTerminal(err.message, 'error');
         return;
       }
+      renderSimulatorCanvases();
+      updateTelemetry('READY');
     }
 
     isRunning = true;
@@ -605,13 +608,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (studioMode === 'build') setStudioSubmode('simulate');
       if (isRunning) stopRun();
       if (interpreter.isFinished || !interpreter.stack.length) {
+        world.restoreSnapshot();
         const code = editorTextarea ? editorTextarea.value : '';
+        if (!code.trim()) {
+          showToast('⚠️ Editor kosong! Tuliskan kode program GvRng terlebih dahulu.');
+          return;
+        }
         try {
           interpreter.loadSource(code);
         } catch (err) {
           showToast('❌ ' + err.message);
           return;
         }
+        renderSimulatorCanvases();
+        updateTelemetry('READY');
       }
       runStep();
     });
@@ -827,11 +837,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnLoadFromGvrw && builderGvrwText) {
     btnLoadFromGvrw.addEventListener('click', () => {
-      wb.loadFromGvrwText(builderGvrwText.value);
-      world = wb.initialWorld;
+      const gvrwText = builderGvrwText.value.trim();
+      if (!gvrwText) {
+        showToast('⚠️ Teks .gvrw kosong!');
+        return;
+      }
+      stopRun();
+      world.fromGvrw(gvrwText);
+      world.saveSnapshot();
+      wb.syncFromWorlds(world, targetWorld);
       interpreter = new GvrInterpreter(world);
-      updateTelemetry('UPDATED');
-      showToast('Teks .gvrw diterapkan ke kanvas!');
+      renderSimulatorCanvases();
+      updateTelemetry('READY');
+      showToast('✅ Peta .gvrw berhasil diterapkan ke kanvas!');
+      logTerminal(`Peta .gvrw dimuat: Robot (${world.robot.x}, ${world.robot.y}) ${world.robot.dir}, Grid ${world.cols}×${world.rows}, ${world.hWalls.size + world.vWalls.size} tembok.`, 'system');
     });
   }
 
