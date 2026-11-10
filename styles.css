@@ -6,44 +6,55 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 
 :root {
-  /* Brand Palette */
-  --color-primary: #0066cc;
-  --color-primary-hover: #0052a3;
-  --color-primary-soft: rgba(0, 102, 204, 0.08);
-  --color-primary-ring: rgba(0, 102, 204, 0.22);
-  --color-secondary: #00a67e;
-  --color-secondary-hover: #008a69;
-  --color-secondary-soft: rgba(0, 166, 126, 0.1);
-  --color-accent: #f59e0b;
-  --color-danger: #ef4444;
-  --color-danger-soft: rgba(239, 68, 68, 0.1);
+  /* iOS 18 System Colors (Apple HIG) */
+  --color-primary: #007AFF;         /* iOS System Blue */
+  --color-primary-hover: #0062CC;
+  --color-primary-soft: rgba(0, 122, 255, 0.10);
+  --color-primary-ring: rgba(0, 122, 255, 0.28);
+  
+  --color-secondary: #34C759;       /* iOS System Green */
+  --color-secondary-hover: #28A745;
+  --color-secondary-soft: rgba(52, 199, 89, 0.12);
 
-  /* Neutrals */
-  --color-bg: #f8fafc;
-  --color-bg-alt: #f1f5f9;
-  --color-bg-card: #ffffff;
-  --color-border: #e2e8f0;
-  --color-border-hover: #cbd5e1;
+  --color-indigo: #5856D6;          /* iOS System Indigo */
+  --color-teal: #30B0C7;            /* iOS System Teal */
+  --color-accent: #FF9500;          /* iOS System Orange */
+  --color-error: #FF3B30;           /* iOS System Red */
+  --color-purple: #AF52DE;          /* iOS System Purple */
 
-  /* Typography */
-  --color-text: #0f172a;
-  --color-text-muted: #475569;
-  --color-text-subtle: #64748b;
+  /* iOS System Materials & Surfaces */
+  --color-bg: #F2F2F7;              /* iOS System Grouped Background */
+  --color-bg-alt: #E5E5EA;          /* Tertiary System Fill */
+  --color-bg-card: #FFFFFF;         /* Secondary System Grouped Background */
+  --color-fill-secondary: rgba(120, 120, 128, 0.12);
+  --color-border: rgba(60, 60, 67, 0.12);            /* iOS Separator */
+  --color-border-hover: rgba(0, 122, 255, 0.35);
 
-  /* Font Families */
-  --font-heading: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* iOS Label Hierarchy */
+  --color-text: #000000;            /* Primary Label */
+  --color-text-muted: rgba(60, 60, 67, 0.70); /* Secondary Label */
+  --color-text-subtle: rgba(60, 60, 67, 0.45); /* Tertiary Label */
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05), 0 6px 16px -2px rgba(0, 102, 204, 0.04);
-  --shadow-card-hover: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 14px 28px -4px rgba(0, 102, 204, 0.12);
+  /* SF Typography System */
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Plus Jakarta Sans", "Segoe UI", Roboto, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
 
-  /* Radius */
+  /* iOS Continuous Corner Radii (Squircles) */
   --radius-badge: 9999px;
-  --radius-card: 14px;
-  --radius-button: 10px;
+  --radius-card: 20px;
+  --radius-button: 12px;
+  --radius-dock: 14px;
+
+  /* iOS Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover: 0 8px 24px -4px rgba(0, 122, 255, 0.14), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-primary-glow: 0 4px 14px rgba(0, 122, 255, 0.32);
+
+  /* Frosted Glass Translucency */
+  --material-glass: rgba(255, 255, 255, 0.82);
+  --material-blur: blur(25px) saturate(190%);
 }
 
 /* =========================================================
@@ -410,27 +421,29 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dock-mission-card {
-  padding: 5px 10px;
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 11.5px;
+  padding: 8px 16px;
+  background: rgba(118, 118, 128, 0.08);
+  border: 1px solid transparent;
+  border-radius: var(--radius-dock);
+  font-family: var(--font-heading);
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--color-text-muted);
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
   flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .dock-mission-card:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
 .dock-mission-card.active {
-  background: var(--color-primary-soft);
+  background: var(--color-primary);
+  color: #ffffff;
   border-color: var(--color-primary);
-  color: var(--color-primary);
-  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35);
+  transform: translateY(-1px);
 }
 
 /* =========================================================
@@ -439,7 +452,12 @@ h1, h2, h3, h4, h5, h6 {
 .simulator-arena-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 20px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
 }
 
 .visualizer-pane {
@@ -468,10 +486,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .smode-segmented {
   display: flex;
-  background: #ffffff;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 2px;
+  background: rgba(118, 118, 128, 0.12);
+  border-radius: 11px;
+  padding: 2.5px;
   gap: 2px;
 }
 
@@ -479,16 +496,16 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: transparent;
+  padding: 6px 14px;
   border: none;
-  font-family: var(--font-heading);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 6px;
+  background: transparent;
   color: var(--color-text-muted);
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 9px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .smode-btn:hover {
@@ -496,9 +513,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .smode-btn.active {
-  background: var(--color-primary);
-  color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 102, 204, 0.25);
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .smode-icon {
@@ -556,7 +573,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .view-switch-group {
   display: flex;
-  gap: 4px;
+  background: rgba(118, 118, 128, 0.12);
+  border-radius: 11px;
+  padding: 2.5px;
+  gap: 2px;
 }
 
 .view-btn {
@@ -763,12 +783,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Speed Segmented Dock */
 .speed-segmented-dock {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  background: #ffffff;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 2px;
+  background: rgba(118, 118, 128, 0.12);
+  border-radius: 11px;
+  padding: 2.5px;
   gap: 2px;
 }
 
@@ -812,18 +831,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .vkey-btn {
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  padding: 4px 8px;
+  background: #ffffff;
+  border: 1px solid rgba(60, 60, 67, 0.16);
+  border-radius: 8px;
+  padding: 5px 9px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--color-text);
   white-space: nowrap;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: all 0.12s cubic-bezier(0.2, 0, 0, 1);
 }
 .vkey-btn:hover, .vkey-btn:active {
   background: var(--color-primary);
@@ -1743,6 +1763,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 
 /* Telemetry Card Robustness */
 .telemetry-cell {
+  background: rgba(118, 118, 128, 0.06);
+  border: 1px solid rgba(60, 60, 67, 0.06);
+  border-radius: 11px;
+  padding: 8px 10px;
+  text-align: center;
   min-width: 0;
   box-sizing: border-box;
   overflow: hidden;
