@@ -27,55 +27,53 @@ window.GVR_MISSIONS = [
       mustReturnToStart: false,
       mustTurnoff: true
     },
-    cols: 18,
-    rows: 12,
-    initialRobot: { x: 9, y: 2, dir: 'EAST', beepers: 0 },
+    cols: 14,
+    rows: 11,
+    initialRobot: { x: 6, y: 2, dir: 'EAST', beepers: 0 },
     initialBeepers: [
-      [15, 2, 1], [15, 9, 2], [9, 9, 3], [9, 4, 4],
-      [13, 4, 5], [13, 7, 6], [11, 7, 7]
+      [12, 2, 1], [12, 9, 1], [6, 9, 1], [6, 4, 1],
+      [10, 4, 1], [10, 7, 1], [8, 7, 1]
     ],
     targetState: {
-      description: 'Seluruh 28 sampah beeper di seluruh sudut spiral terambil (0 beeper tersisa di peta, 28 beeper di tas robot). Robot berhenti di pusat jalan buntu spiral.',
-      finalRobot: { x: 11, y: 6, dir: 'EAST', beepers: 28, isOff: true },
+      description: 'Seluruh 7 sampah beeper di tiap sudut lorong spiral terambil bersih (0 beeper tersisa di peta, 7 beeper di tas robot). Robot berhenti di pusat spiral (8, 6) menghadap SOUTH dan turnoff.',
+      finalRobot: { x: 8, y: 6, dir: 'SOUTH', beepers: 7, isOff: true },
       remainingBeepers: 0
     },
     hWalls: [
-      [9, 10], [10, 10], [11, 10], [12, 10], [13, 10], [14, 10], [15, 10],
-      [10, 9], [11, 9], [12, 9], [13, 9], [14, 9],
-      [11, 8], [12, 8], [13, 8],
-      [12, 7], [11, 6],
-      [10, 5], [11, 5], [12, 5],
-      [9, 4], [10, 4], [11, 4], [12, 4], [13, 4],
-      [9, 3], [10, 3], [11, 3], [12, 3], [13, 3], [14, 3],
-      [9, 2], [10, 2], [11, 2], [12, 2], [13, 2], [14, 2], [15, 2]
+      [6, 2], [7, 2], [6, 1], [7, 1], [8, 1], [9, 1], [10, 1], [11, 1], [12, 1],
+      [12, 9], [11, 9], [10, 9], [9, 9], [8, 9], [7, 9], [6, 9],
+      [8, 2], [9, 2], [10, 2], [11, 2],
+      [11, 8], [10, 8], [9, 8], [8, 8], [7, 8],
+      [6, 3], [7, 3], [8, 3], [9, 3], [10, 3],
+      [10, 7], [9, 7], [8, 7],
+      [7, 4], [8, 4], [9, 4],
+      [9, 6], [8, 5]
     ],
     vWalls: [
-      [9, 9], [16, 9],
-      [9, 8], [10, 8], [15, 8], [16, 8],
-      [9, 7], [10, 7], [11, 7], [14, 7], [15, 7], [16, 7],
-      [9, 6], [10, 6], [11, 6], [12, 6], [13, 6], [14, 6], [15, 6], [16, 6],
-      [9, 5], [10, 5], [13, 5], [14, 5], [15, 5], [16, 5],
-      [9, 4], [14, 4], [15, 4], [16, 4],
-      [15, 3], [16, 3],
-      [9, 2], [16, 2]
+      [12, 2], [5, 2], [12, 3], [12, 4], [12, 5], [12, 9], [12, 8], [12, 7], [12, 6],
+      [5, 9], [11, 3], [11, 4], [11, 5], [11, 6], [11, 7], [11, 8],
+      [6, 8], [5, 8], [5, 7], [5, 6], [5, 5], [5, 4],
+      [10, 4], [10, 5], [10, 6], [10, 7],
+      [7, 7], [6, 7], [6, 6], [6, 5],
+      [9, 5], [9, 6], [8, 6], [7, 6]
     ],
     starterCode: `# Tuliskan kode program GvRng di sini
 # Syarat: Maksimal 9 baris kode!
-# Hint: Gunakan perulangan while dan sensor front_is_clear serta front_is_blocked
+# Hint: Gunakan perulangan while dan sensor front_is_clear serta next_to_a_beeper
 
 while front_is_clear:
     # Lengkapi instruksi di sini
     move
 `,
-    solutionCode: `# Solusi Resmi Aslab — Hanya 8 Baris Kode (Batas: 9 Baris)
+    solutionCode: `# Solusi Resmi Aslab — Hanya 7 Baris Kode (Batas: 9 Baris)
 while front_is_clear:
     move
     while next_to_a_beeper:
         pickbeeper
-    if front_is_blocked:
         turnleft
+        move
 turnoff`,
-    logicExplanation: `Kenapa kode ini hanya 8 baris dan berhasil?\n1. Robot terus melangkah sepanjang lorong spiral (\`move\`).\n2. Di setiap sudut ruangan terdapat "sejumlah sampah" (1, 2, 3, 4, 5, 6, 7 beeper). Loop \`while next_to_a_beeper: pickbeeper\` menyapu bersih seluruh beeper tanpa tersisa!\n3. Di setiap belokan, robot terhalang dinding (\`front_is_blocked\`), lalu robot belok kiri (\`turnleft\`).\n4. Karena bentuknya spiral, setelah belok kiri lorong terbuka kembali sehingga loop luar berlanjut.\n5. Saat tiba di pusat spiral (jalan buntu), setelah robot belok kiri depannya TETAP tertutup dinding. Kondisi \`while front_is_clear\` menjadi False, loop selesai, lalu \`turnoff\`. Sangat presisi!`
+    logicExplanation: `Kenapa kode ini berhasil?\n1. Robot melangkah sepanjang lorong spiral (\`move\`).\n2. Saat menemui beeper di sudut (\`next_to_a_beeper\`), robot mengambil beeper (\`pickbeeper\`), belok kiri (\`turnleft\`), lalu melangkah masuk ke lorong berikutnya (\`move\`).\n3. Saat tiba di ujung pusat spiral (jalan buntu), robot tidak lagi menemui beeper dan depannya terhalang tembok. Loop \`while front_is_clear\` selesai, lalu robot mengeksekusi \`turnoff\`.`
   },
 
   // =========================================================================
