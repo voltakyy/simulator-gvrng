@@ -564,6 +564,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Auto-apply .gvrw textarea content if it differs from current world snapshot.
+  // This prevents the common mistake of pasting a custom map into the textarea
+  // but forgetting to click "Terapkan Teks" before running.
+  function applyGvrwIfChanged() {
+    if (!builderGvrwText) return;
+    const gvrwText = builderGvrwText.value.trim();
+    if (!gvrwText) return;
+    // Compare textarea with current world serialization to detect user edits
+    const currentGvrw = world.toGvrw().trim();
+    if (gvrwText !== currentGvrw) {
+      try {
+        world.fromGvrw(gvrwText);
+        world.saveSnapshot();
+        wb.syncFromWorlds(world, targetWorld);
+        interpreter = new GvrInterpreter(world);
+        logTerminal(`Peta .gvrw dari textarea diterapkan otomatis: Grid ${world.cols}×${world.rows}, ${world.hWalls.size + world.vWalls.size} tembok.`, 'system');
+      } catch (e) {
+        // If gvrw is malformed, silently ignore and use current world
+      }
+    }
+  }
+
   function startRun() {
     // If currently in builder mode, switch back to simulation view seamlessly
     if (studioMode === 'build') {
@@ -577,6 +599,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (interpreter.isFinished || !interpreter.stack.length) {
+      // Auto-apply gvrw textarea if user edited it without clicking "Terapkan Teks"
+      applyGvrwIfChanged();
       world.restoreSnapshot();
       const code = editorTextarea ? editorTextarea.value : '';
       if (!code.trim()) {
@@ -608,6 +632,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (studioMode === 'build') setStudioSubmode('simulate');
       if (isRunning) stopRun();
       if (interpreter.isFinished || !interpreter.stack.length) {
+        // Auto-apply gvrw textarea if user edited it without clicking "Terapkan Teks"
+        applyGvrwIfChanged();
         world.restoreSnapshot();
         const code = editorTextarea ? editorTextarea.value : '';
         if (!code.trim()) {
