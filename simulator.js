@@ -78,9 +78,9 @@ class GvrWorld {
     this.beepers.clear();
   }
 
-  // Add horizontal wall segment on Street s from Avenue a to a+1
+  // Add horizontal wall segment North of Street s along Avenue a (connects dot (a, s+1) to (a+1, s+1))
   addHWall(a, s) {
-    if (a < 1 || a >= this.cols || s < 1 || s > this.rows) return;
+    if (a < 1 || a > this.cols || s < 1 || s >= this.rows) return;
     this.hWalls.add(`${a},${s}`);
   }
 
@@ -97,7 +97,7 @@ class GvrWorld {
   }
 
   toggleHWall(a, s) {
-    if (a < 1 || a >= this.cols || s < 1 || s > this.rows) return false;
+    if (a < 1 || a > this.cols || s < 1 || s >= this.rows) return false;
     const key = `${a},${s}`;
     if (this.hWalls.has(key)) {
       this.hWalls.delete(key);
@@ -108,9 +108,9 @@ class GvrWorld {
     }
   }
 
-  // Add vertical wall segment on Avenue a from Street s to s+1
+  // Add vertical wall segment East of Avenue a along Street s (connects dot (a+1, s) to (a+1, s+1))
   addVWall(a, s) {
-    if (a < 1 || a > this.cols || s < 1 || s >= this.rows) return;
+    if (a < 1 || a >= this.cols || s < 1 || s > this.rows) return;
     this.vWalls.add(`${a},${s}`);
   }
 
@@ -119,7 +119,7 @@ class GvrWorld {
   }
 
   toggleVWall(a, s) {
-    if (a < 1 || a > this.cols || s < 1 || s >= this.rows) return false;
+    if (a < 1 || a >= this.cols || s < 1 || s > this.rows) return false;
     const key = `${a},${s}`;
     if (this.vWalls.has(key)) {
       this.vWalls.delete(key);
@@ -148,11 +148,11 @@ class GvrWorld {
     // Prune walls & beepers outside new bounds
     [...this.hWalls].forEach(k => {
       const [a, s] = k.split(',').map(Number);
-      if (a >= this.cols || s > this.rows) this.hWalls.delete(k);
+      if (a > this.cols || s >= this.rows) this.hWalls.delete(k);
     });
     [...this.vWalls].forEach(k => {
       const [a, s] = k.split(',').map(Number);
-      if (a > this.cols || s >= this.rows) this.vWalls.delete(k);
+      if (a >= this.cols || s > this.rows) this.vWalls.delete(k);
     });
     [...this.beepers.keys()].forEach(k => {
       const [x, y] = k.split(',').map(Number);
@@ -216,17 +216,17 @@ class GvrWorld {
   frontIsClear() {
     const { x, y, dir } = this.robot;
     if (dir === 'NORTH') {
-      if (y >= this.rows - 1) return false;
-      return !this.hWalls.has(`${x},${y + 1}`);
+      if (y >= this.rows) return false;
+      return !this.hWalls.has(`${x},${y}`);
     } else if (dir === 'SOUTH') {
       if (y <= 1) return false;
-      return !this.hWalls.has(`${x},${y}`);
+      return !this.hWalls.has(`${x},${y - 1}`);
     } else if (dir === 'EAST') {
-      if (x >= this.cols - 1) return false;
-      return !this.vWalls.has(`${x + 1},${y}`);
+      if (x >= this.cols) return false;
+      return !this.vWalls.has(`${x},${y}`);
     } else if (dir === 'WEST') {
       if (x <= 1) return false;
-      return !this.vWalls.has(`${x},${y}`);
+      return !this.vWalls.has(`${x - 1},${y}`);
     }
     return false;
   }
@@ -505,6 +505,12 @@ class GvrWorld {
 
   // ==========================================
   // CANVAS COORDINATE TRANSFORM & HIT TESTING
+  // Authentic GvRng Geometry:
+  // - Grid dots at (gx, gy) for gx=1..cols+1, gy=1..rows+1
+  // - Cells at (cx, cy) for cx=1..cols, cy=1..rows
+  // - Robot and Beepers centered inside cells at (cx, cy)
+  // - H-Walls North of (a, s) connect dot (a, s+1) to (a+1, s+1)
+  // - V-Walls East of (a, s) connect dot (a+1, s) to (a+1, s+1)
   // ==========================================
   getTransform(canvas) {
     const dpr = window.devicePixelRatio || 1;
@@ -513,18 +519,23 @@ class GvrWorld {
     const availW = canvas.width / dpr - padX * 2;
     const availH = canvas.height / dpr - padY * 2;
 
-    const cellW = availW / (this.cols - 1 || 1);
-    const cellH = availH / (this.rows - 1 || 1);
-    const cellSize = Math.min(cellW, cellH, 44);
+    const cellSize = Math.min(availW / this.cols, availH / this.rows, 42);
 
-    const gridW = (this.cols - 1) * cellSize;
-    const gridH = (this.rows - 1) * cellSize;
+    const gridW = this.cols * cellSize;
+    const gridH = this.rows * cellSize;
     const startX = padX + ((availW - gridW) / 2);
     const startY = (canvas.height / dpr) - padY - ((availH - gridH) / 2);
 
+    // Grid intersection dot position: gx: 1..cols+1, gy: 1..rows+1
     const toPx = (gx, gy) => ({
       px: startX + (gx - 1) * cellSize,
       py: startY - (gy - 1) * cellSize
+    });
+
+    // Cell center: cx: 1..cols, cy: 1..rows
+    const toCellCenter = (cx, cy) => ({
+      px: startX + (cx - 0.5) * cellSize,
+      py: startY - (cy - 0.5) * cellSize
     });
 
     const fromPx = (px, py) => ({
@@ -532,13 +543,13 @@ class GvrWorld {
       gy: (startY - py) / cellSize + 1
     });
 
-    return { dpr, padX, padY, availW, availH, cellSize, startX, startY, toPx, fromPx };
+    return { dpr, padX, padY, availW, availH, cellSize, startX, startY, toPx, toCellCenter, fromPx };
   }
 
   hitTest(px, py, canvas, threshold = 20) {
-    const { startX, startY, cellSize, toPx } = this.getTransform(canvas);
+    const { startX, startY, cellSize, toPx, toCellCenter } = this.getTransform(canvas);
 
-    // 1. Cell coordinates (intersection cell gx, gy)
+    // 1. Cell coordinates (cell cx, cy)
     const cellX = Math.floor((px - startX) / cellSize) + 1;
     const cellY = Math.floor((startY + cellSize - py) / cellSize);
     const isInsideCell = cellX >= 1 && cellX <= this.cols && cellY >= 1 && cellY <= this.rows;
@@ -546,7 +557,7 @@ class GvrWorld {
     let cellCenterDist = 999;
     let beeperCount = 0;
     if (isInsideCell) {
-      const center = toPx(cellX + 0.5, cellY + 0.5);
+      const center = toCellCenter(cellX, cellY);
       cellCenterDist = Math.hypot(px - center.px, py - center.py);
       beeperCount = this.getBeeperCount(cellX, cellY);
     }
@@ -557,11 +568,11 @@ class GvrWorld {
     let minExistingDist = threshold;
     let minSlotDist = threshold;
 
-    // Horizontal walls: Street s from Avenue a to a+1
-    for (let a = 1; a < this.cols; a++) {
-      for (let s = 1; s <= this.rows; s++) {
-        const p1 = toPx(a, s);
-        const p2 = toPx(a + 1, s);
+    // Horizontal walls: North of cell (a, s) connects dot (a, s+1) to (a+1, s+1)
+    for (let a = 1; a <= this.cols; a++) {
+      for (let s = 1; s < this.rows; s++) {
+        const p1 = toPx(a, s + 1);
+        const p2 = toPx(a + 1, s + 1);
         if (px >= p1.px - 6 && px <= p2.px + 6) {
           const dist = Math.abs(py - p1.py);
           const wallKey = `${a},${s}`;
@@ -579,11 +590,11 @@ class GvrWorld {
       }
     }
 
-    // Vertical walls: Avenue a from Street s to s+1
-    for (let a = 1; a <= this.cols; a++) {
-      for (let s = 1; s < this.rows; s++) {
-        const p1 = toPx(a, s);
-        const p2 = toPx(a, s + 1);
+    // Vertical walls: East of cell (a, s) connects dot (a+1, s) to (a+1, s+1)
+    for (let a = 1; a < this.cols; a++) {
+      for (let s = 1; s <= this.rows; s++) {
+        const p1 = toPx(a + 1, s);
+        const p2 = toPx(a + 1, s + 1);
         if (py <= p1.py + 6 && py >= p2.py - 6) {
           const dist = Math.abs(px - p1.px);
           const wallKey = `${a},${s}`;
@@ -604,7 +615,7 @@ class GvrWorld {
     // 3. Nearest grid intersection dot (gx, gy)
     const dotX = Math.round((px - startX) / cellSize) + 1;
     const dotY = Math.round((startY - py) / cellSize) + 1;
-    const isInsideGrid = dotX >= 1 && dotX <= this.cols && dotY >= 1 && dotY <= this.rows;
+    const isInsideGrid = dotX >= 1 && dotX <= this.cols + 1 && dotY >= 1 && dotY <= this.rows + 1;
 
     return {
       wall: closestWallSlot,
@@ -623,7 +634,7 @@ class GvrWorld {
   render(canvas, options = {}) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const { dpr, cellSize, startX, startY, toPx } = this.getTransform(canvas);
+    const { dpr, cellSize, startX, startY, toPx, toCellCenter } = this.getTransform(canvas);
 
     ctx.save();
     ctx.scale(dpr, dpr);
@@ -633,50 +644,50 @@ class GvrWorld {
     ctx.fillStyle = options.isTargetView ? '#fcfbf7' : '#ffffff';
     ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
 
-    // 1. Grid Intersections (Dots) & Numbered Coordinates
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    for (let x = 1; x <= this.cols; x++) {
-      for (let y = 1; y <= this.rows; y++) {
+    // 1. Grid Intersections (Dots)
+    for (let x = 1; x <= this.cols + 1; x++) {
+      for (let y = 1; y <= this.rows + 1; y++) {
         const { px, py } = toPx(x, y);
-
-        // Dot
         ctx.beginPath();
-        ctx.arc(px, py, 2.8, 0, Math.PI * 2);
+        ctx.arc(px, py, 2.5, 0, Math.PI * 2);
         ctx.fillStyle = options.isTargetView ? '#cbd5e1' : '#94a3b8';
         ctx.fill();
-
-        // Bottom axis street numbers
-        if (y === 1) {
-          ctx.fillStyle = '#64748b';
-          ctx.fillText(x.toString(), px, py + 18);
-        }
-        // Left axis avenue numbers
-        if (x === 1) {
-          ctx.fillStyle = '#64748b';
-          ctx.fillText(y.toString(), px - 18, py);
-        }
       }
     }
 
-    // 1b. Boundary Walls (Avenue 1 & Street 1)
+    // Numbered Axis Labels (Avenue columns & Street rows)
+    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#64748b';
+
+    for (let x = 1; x <= this.cols; x++) {
+      const { px } = toCellCenter(x, 1);
+      ctx.fillText(x.toString(), px, startY + 18);
+    }
+    for (let y = 1; y <= this.rows; y++) {
+      const { py } = toCellCenter(1, y);
+      ctx.fillText(y.toString(), startX - 18, py);
+    }
+
+    // 1b. Boundary Walls (West of Avenue 1 & South of Street 1)
     ctx.strokeStyle = '#ef4444';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3.5;
     ctx.lineCap = 'round';
 
+    // South outer wall: connecting dot (1,1) to (cols+1, 1)
     const pBL = toPx(1, 1);
-    const pTL = toPx(1, this.rows);
-    ctx.beginPath();
-    ctx.moveTo(pBL.px, pBL.py);
-    ctx.lineTo(pTL.px, pTL.py);
-    ctx.stroke();
-
-    const pBR = toPx(this.cols, 1);
+    const pBR = toPx(this.cols + 1, 1);
     ctx.beginPath();
     ctx.moveTo(pBL.px, pBL.py);
     ctx.lineTo(pBR.px, pBR.py);
+    ctx.stroke();
+
+    // West outer wall: connecting dot (1,1) to (1, rows+1)
+    const pTL = toPx(1, this.rows + 1);
+    ctx.beginPath();
+    ctx.moveTo(pBL.px, pBL.py);
+    ctx.lineTo(pTL.px, pTL.py);
     ctx.stroke();
 
     // 2. Path Trail (Live simulation path history)
@@ -686,10 +697,10 @@ class GvrWorld {
       ctx.lineWidth = 3;
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
-      const pStart = toPx(this.pathHistory[0].x + 0.5, this.pathHistory[0].y + 0.5);
+      const pStart = toCellCenter(this.pathHistory[0].x, this.pathHistory[0].y);
       ctx.moveTo(pStart.px, pStart.py);
       for (let i = 1; i < this.pathHistory.length; i++) {
-        const pt = toPx(this.pathHistory[i].x + 0.5, this.pathHistory[i].y + 0.5);
+        const pt = toCellCenter(this.pathHistory[i].x, this.pathHistory[i].y);
         ctx.lineTo(pt.px, pt.py);
       }
       ctx.stroke();
@@ -701,32 +712,32 @@ class GvrWorld {
       if (options.hover.wall) {
         ctx.save();
         ctx.strokeStyle = options.activeTool === 'eraser' ? '#ef4444' : '#3b82f6';
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 5;
         ctx.lineCap = 'round';
         ctx.setLineDash([4, 4]);
         const w = options.hover.wall;
         if (w.type === 'hwall') {
-          const p1 = toPx(w.a, w.s);
-          const p2 = toPx(w.a + 1, w.s);
+          const p1 = toPx(w.a, w.s + 1);
+          const p2 = toPx(w.a + 1, w.s + 1);
           ctx.beginPath();
           ctx.moveTo(p1.px, p1.py);
           ctx.lineTo(p2.px, p2.py);
           ctx.stroke();
         } else if (w.type === 'vwall') {
-          const p1 = toPx(w.a, w.s);
-          const p2 = toPx(w.a, w.s + 1);
+          const p1 = toPx(w.a + 1, w.s);
+          const p2 = toPx(w.a + 1, w.s + 1);
           ctx.beginPath();
           ctx.moveTo(p1.px, p1.py);
           ctx.lineTo(p2.px, p2.py);
           ctx.stroke();
         }
         ctx.restore();
-      } else if (options.hover.cell && (options.activeTool === 'robot' || options.activeTool === 'beeper')) {
+      } else if (options.hover.cell && (options.activeTool === 'robot' || options.activeTool === 'beeper' || options.activeTool === 'beeper-plus' || options.activeTool === 'beeper-minus')) {
         ctx.save();
-        const { px, py } = toPx(options.hover.cell.x + 0.5, options.hover.cell.y + 0.5);
+        const { px, py } = toCellCenter(options.hover.cell.x, options.hover.cell.y);
         ctx.beginPath();
-        ctx.arc(px, py, cellSize * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = options.activeTool === 'robot' ? 'rgba(0, 102, 204, 0.15)' : 'rgba(245, 158, 11, 0.2)';
+        ctx.arc(px, py, cellSize * 0.35, 0, Math.PI * 2);
+        ctx.fillStyle = options.activeTool === 'robot' ? 'rgba(0, 102, 204, 0.15)' : 'rgba(2, 132, 199, 0.2)';
         ctx.fill();
         ctx.restore();
       }
@@ -734,23 +745,25 @@ class GvrWorld {
 
     // 4. Dot-to-Dot Walls
     ctx.strokeStyle = '#ef4444';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3.5;
     ctx.lineCap = 'round';
 
+    // Horizontal walls North of cell (a, s): connects dot (a, s+1) to (a+1, s+1)
     this.hWalls.forEach(key => {
       const [a, s] = key.split(',').map(Number);
-      const p1 = toPx(a, s);
-      const p2 = toPx(a + 1, s);
+      const p1 = toPx(a, s + 1);
+      const p2 = toPx(a + 1, s + 1);
       ctx.beginPath();
       ctx.moveTo(p1.px, p1.py);
       ctx.lineTo(p2.px, p2.py);
       ctx.stroke();
     });
 
+    // Vertical walls East of cell (a, s): connects dot (a+1, s) to (a+1, s+1)
     this.vWalls.forEach(key => {
       const [a, s] = key.split(',').map(Number);
-      const p1 = toPx(a, s);
-      const p2 = toPx(a, s + 1);
+      const p1 = toPx(a + 1, s);
+      const p2 = toPx(a + 1, s + 1);
       ctx.beginPath();
       ctx.moveTo(p1.px, p1.py);
       ctx.lineTo(p2.px, p2.py);
@@ -761,11 +774,11 @@ class GvrWorld {
     this.beepers.forEach((count, key) => {
       if (count <= 0) return;
       const [gx, gy] = key.split(',').map(Number);
-      const { px, py } = toPx(gx + 0.5, gy + 0.5);
+      const { px, py } = toCellCenter(gx, gy);
 
-      // Proportional radius (never collides with adjacent beepers)
-      const bRadius = Math.max(5.5, Math.min(10, cellSize * 0.22));
-      const fontSize = Math.max(7, Math.min(10, Math.round(bRadius * 1.1)));
+      // Proportional radius (never collides with walls or adjacent beepers)
+      const bRadius = Math.max(7.5, Math.min(13, cellSize * 0.30));
+      const fontSize = Math.max(8, Math.min(12, Math.round(bRadius * 1.05)));
 
       // Main Token Disc (Ocean Blue Gradient)
       ctx.beginPath();
@@ -781,9 +794,9 @@ class GvrWorld {
       ctx.fillStyle = grad;
       ctx.fill();
 
-      // Crisp border: 1.5px white outline
+      // Crisp border: 1.8px white outline
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1.8;
       ctx.stroke();
 
       // Subtle dark contrast rim
@@ -802,9 +815,9 @@ class GvrWorld {
       ctx.fillText(textToDisplay, px, py + 0.5);
     });
 
-    // 6. Robot (Arrow Vehicle)
+    // 6. Robot (Directional Arrow Vehicle inside cell)
     if (this.robot && this.robot.x && this.robot.y) {
-      const { px, py } = toPx(this.robot.x + 0.5, this.robot.y + 0.5);
+      const { px, py } = toCellCenter(this.robot.x, this.robot.y);
       ctx.save();
       ctx.translate(px, py);
 
@@ -815,7 +828,7 @@ class GvrWorld {
       else if (this.robot.dir === 'EAST') angle = 0;
       ctx.rotate(angle);
 
-      const rSize = cellSize * 0.44;
+      const rSize = cellSize * 0.38;
       ctx.beginPath();
       ctx.moveTo(rSize, 0);
       ctx.lineTo(-rSize * 0.75, -rSize * 0.75);
@@ -834,13 +847,13 @@ class GvrWorld {
         ctx.strokeStyle = '#004c99';
       }
 
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 2.2;
       ctx.fill();
       ctx.stroke();
 
       // Eye
       ctx.beginPath();
-      ctx.arc(rSize * 0.25, 0, 3, 0, Math.PI * 2);
+      ctx.arc(rSize * 0.25, 0, 2.5, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff';
       ctx.fill();
 
@@ -850,15 +863,15 @@ class GvrWorld {
       const robotCellKey = `${this.robot.x},${this.robot.y}`;
       const beeperCountUnderRobot = this.beepers.get(robotCellKey) || 0;
       if (beeperCountUnderRobot > 0) {
-        const badgeX = px + cellSize * 0.30;
-        const badgeY = py - cellSize * 0.30;
-        const miniR = Math.max(5, Math.min(7.5, cellSize * 0.18));
+        const badgeX = px + cellSize * 0.28;
+        const badgeY = py - cellSize * 0.28;
+        const miniR = Math.max(5, Math.min(8, cellSize * 0.18));
         ctx.beginPath();
         ctx.arc(badgeX, badgeY, miniR, 0, Math.PI * 2);
         ctx.fillStyle = '#0284c7';
         ctx.fill();
         ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.2;
         ctx.stroke();
         ctx.fillStyle = '#ffffff';
         ctx.font = `bold ${Math.max(6.5, Math.round(miniR * 1.05))}px "JetBrains Mono", monospace`;

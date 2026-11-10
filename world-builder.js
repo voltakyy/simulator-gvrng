@@ -169,15 +169,15 @@ class GvrWorldBuilder {
         }
       } else if (hit.cell) {
         const trans = world.getTransform(this.canvas);
-        const cellCenter = trans.toPx(hit.cell.x + 0.5, hit.cell.y + 0.5);
+        const cellCenter = trans.toCellCenter(hit.cell.x, hit.cell.y);
         const dx = px - cellCenter.px;
         const dy = py - cellCenter.py;
         if (Math.abs(dx) > Math.abs(dy)) {
-          if (dx > 0) world.toggleVWall(hit.cell.x + 1, hit.cell.y);
-          else world.toggleVWall(hit.cell.x, hit.cell.y);
+          if (dx > 0) world.toggleVWall(hit.cell.x, hit.cell.y);
+          else world.toggleVWall(hit.cell.x - 1, hit.cell.y);
         } else {
-          if (dy > 0) world.toggleHWall(hit.cell.x, hit.cell.y);
-          else world.toggleHWall(hit.cell.x, hit.cell.y + 1);
+          if (dy > 0) world.toggleHWall(hit.cell.x, hit.cell.y - 1);
+          else world.toggleHWall(hit.cell.x, hit.cell.y);
         }
       }
     } else if (this.activeTool === 'robot') {
