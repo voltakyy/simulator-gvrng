@@ -361,8 +361,19 @@
               <h4 class="detail-panel-title">Deskripsi &amp; Target Misi Resmi</h4>
               <p id="missionPrompt" class="detail-panel-desc"></p>
 
-              <h4 class="detail-panel-title">Kunci Jawaban Solusi Terverifikasi</h4>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h4 class="detail-panel-title" style="margin:0;">Kunci Jawaban Solusi Terverifikasi</h4>
+                <button id="btnCopySolution" class="btn-micro-pill">📋 Salin Kunci</button>
+              </div>
               <pre class="code-preview-block"><code id="solutionCodeDisplay"></code></pre>
+
+              <h4 class="detail-panel-title" style="margin-top:14px;">💡 Bedah Logika &amp; Trik Ujian (Bebas Hitung Langkah!)</h4>
+              <p id="logicExplanationDisplay" class="detail-panel-desc" style="white-space:pre-line; background:rgba(0,122,255,0.06); padding:12px; border-radius:10px; border-left:3px solid var(--ios-blue); font-size:12px; line-height:1.6;"></p>
+
+              <div id="altSchemasSection" style="margin-top:14px;">
+                <h4 class="detail-panel-title">📑 Alternatif Skema Jawaban Ujian</h4>
+                <div id="altSchemasList" style="display:flex; flex-direction:column; gap:10px;"></div>
+              </div>
             </div>
           </div>
 

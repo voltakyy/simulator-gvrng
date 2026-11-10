@@ -234,6 +234,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (missionConstraint) missionConstraint.textContent = currentMission.badge || currentMission.category;
     if (missionPrompt) missionPrompt.textContent = currentMission.prompt;
     if (solutionCodeDisplay) solutionCodeDisplay.textContent = currentMission.solutionCode || '# Solusi belum dipublikasikan';
+    const logicExplanationDisplay = document.getElementById('logicExplanationDisplay');
+    if (logicExplanationDisplay) {
+      logicExplanationDisplay.textContent = currentMission.logicExplanation || 'Ikuti syarat & batasan baris untuk menyelesaikan misi.';
+    }
+
+    const altSchemasContainer = document.getElementById('altSchemasList');
+    if (altSchemasContainer) {
+      altSchemasContainer.innerHTML = '';
+      if (currentMission.alternativeSolutions && currentMission.alternativeSolutions.length > 0) {
+        currentMission.alternativeSolutions.forEach((alt, idx) => {
+          const card = document.createElement('div');
+          card.style.cssText = 'background:rgba(255,255,255,0.7); border:1px solid rgba(0,0,0,0.08); border-radius:8px; padding:10px;';
+          card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px;">
+              <strong style="color:var(--ios-blue); font-size:12px;">${alt.name}</strong>
+              <button class="btn-micro-pill btn-pill-amber btn-apply-schema" data-idx="${idx}">⚡ Pakai Skema</button>
+            </div>
+            <p style="font-size:11px; color:var(--color-text-subtle); margin-bottom:6px;">${alt.desc}</p>
+            <pre class="code-preview-block" style="margin:0; font-size:11px;"><code style="font-size:11px;">${alt.code}</code></pre>
+          `;
+          const btn = card.querySelector('.btn-apply-schema');
+          btn.addEventListener('click', () => {
+            if (editorTextarea) {
+              editorTextarea.value = alt.code;
+              updateLineGutter();
+              showToast(`⚡ ${alt.name} dimuat ke editor!`);
+            }
+          });
+          altSchemasContainer.appendChild(card);
+        });
+      } else {
+        altSchemasContainer.innerHTML = '<p style="font-size:11px; color:var(--color-text-subtle);">Solusi di atas merupakan skema tunggal paling optimal & terverifikasi resmi.</p>';
+      }
+    }
     if (puzzleSelect) puzzleSelect.value = currentMission.id;
 
     // Load starter code into editor
@@ -477,6 +511,19 @@ document.addEventListener('DOMContentLoaded', () => {
         editorTextarea.value = currentMission.solutionCode;
         updateLineGutter();
         showToast('💡 Kunci contekan resmi dimuat ke editor.');
+      }
+    });
+  }
+
+  const btnCopySolution = document.getElementById('btnCopySolution');
+  if (btnCopySolution) {
+    btnCopySolution.addEventListener('click', () => {
+      if (currentMission && currentMission.solutionCode) {
+        navigator.clipboard.writeText(currentMission.solutionCode).then(() => {
+          showToast('📋 Kunci jawaban berhasil disalin!');
+        }).catch(() => {
+          showToast('📋 Kunci jawaban siap digunakan.');
+        });
       }
     });
   }

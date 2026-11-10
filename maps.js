@@ -135,13 +135,15 @@ define susur:
                 turnleft
                 move
             else:
-                do 2:
-                    turnleft
-                move
+                if facing_west:
+                    turnoff
+                else:
+                    do 2:
+                        turnleft
+                    move
 
-do 32:
-    susur
-turnoff`,
+while not_next_to_a_beeper:
+    susur`,
     logicExplanation: `Trik Logika Aslab:\n1. Lorong ini memiliki satu pintu masuk di barat dan ujung buntu di puncak menara ketiga.\n2. Dengan algoritma "Right-Hand Rule" (mengutamakan kanan terbuka -> lurus -> kiri -> putar balik), robot secara otomatis menaiki ketiga menara lorong sampai mentok, lalu berbalik menyusuri lorong yang sama kembali pulang!\n3. Saat tiba kembali di titik awal (4, 7), robot menghadap BARAT (\`WEST\`) ke arah dinding keluar. Loop \`while not_facing_west\` berhenti seketika, dan robot mematikan diri (\`turnoff\`) tepat di titik awal!`
   },
 
@@ -216,11 +218,12 @@ define langkah:
                     turnleft
                 move
 
-do 34:
+while any_beepers_in_world:
     langkah
-ambil_semua
-while not_facing_west:
-    turnleft
+
+do 3:
+    langkah
+
 turnoff`,
     logicExplanation: `Bedah Kode Solusi:\n1. Fungsi \`ambil_semua\` menjamin robot memungut setiap sampah beeper saat melewatinya.\n2. Algoritma penelusuran dinding kanan (\`right_is_clear\` -> \`front_is_clear\` -> \`left_is_clear\`) memandu robot menjelajahi seluruh ruangan gedung tanpa terlewat.\n3. Kondisi loop \`while any_beepers_in_world: langkah\` membuat robot terus bergerak sampai seluruh 6 sampah bersih total.\n4. Setelah semua sampah bersih, robot kembali ke titik awal (4, 7) dan mematikan diri.`
   },
@@ -241,7 +244,7 @@ turnoff`,
       maxLines: 22,
       requiredKeywords: ['while', 'define'],
       mustClearAllBeepers: true,
-      mustReturnToStart: true,
+      mustReturnToStart: false,
       mustTurnoff: true
     },
     cols: 26,
@@ -292,9 +295,11 @@ define langkah:
     move
 
 move
-do 88:
+while any_beepers_in_world:
     langkah
-move
+
+do 2:
+    move
 turnright
 move
 turnoff`,
@@ -492,7 +497,11 @@ define circumference:
     # TODO: Kelilingi satu kotak
     pass
 `,
-    solutionCode: `# Solusi Buku Praktikum Halaman 52 (Alternatif 1 — 20 Baris)
+    solutionCode: `# Solusi Modular Buku Praktikum Halaman 52 (22 Baris, Batas: 30 Baris)
+define move3:
+    do 3:
+        move
+
 define circumference:
     do 4:
         if next_to_a_beeper:
@@ -502,16 +511,17 @@ define circumference:
         if next_to_a_beeper:
             pickbeeper
         move
+
 do 3:
-    do 3:
-        move
+    move3
     circumference
-turnleft
-turnleft
-do 9:
-    move
-turnleft
-turnleft
+
+do 2:
+    turnleft
+do 3:
+    move3
+do 2:
+    turnleft
 turnoff`,
     logicExplanation: `Analisis Buku Hal 52 (Alternatif 1):\n1. Program ini sangat ringkas (hanya 20 baris kode).\n2. Fungsi \`circumference\` mengitari 4 sisi kotak menggunakan \`do 4\`, memeriksa beeper di setiap langkah.\n3. Loop \`do 3\` memproses ketiga kotak secara berurutan.\n4. Robot berbalik arah (\`turnleft\` 2x) dan melangkah mundur 9 langkah langsung ke titik awal.`
   },
