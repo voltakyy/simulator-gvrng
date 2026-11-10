@@ -1,7 +1,8 @@
 /**
- * GvRng Studio Web IDE & World Builder Application
- * Coordinates Simulator, World Builder, Step Debugger, Virtual Helper Keyboard,
- * Validation Engine, and Interactive Quiz Modes.
+ * GvRng Studio Web IDE & Unified World Builder Application (v3.0)
+ * Integrates Arena Simulator, Interactive World Builder, Step Debugger,
+ * Virtual Helper Keyboard, Validation Engine, and Authentic .GVRW Code Sync
+ * on a SINGLE SEAMLESS PAGE.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,12 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvasViewport = document.getElementById('canvasViewport');
   const targetCanvasWrapper = document.getElementById('targetCanvasWrapper');
   const puzzleSelect = document.getElementById('puzzleSelect');
+  const liveCanvasIndicator = document.getElementById('liveCanvasIndicator');
 
-  // View Mode Buttons
+  // Unified Mode Switcher (Simulasi vs Desain Peta)
+  const btnModeSimulate = document.getElementById('btnModeSimulate');
+  const btnModeBuild = document.getElementById('btnModeBuild');
+  const simViewToolbar = document.getElementById('simViewToolbar');
+  const builderInlineToolbar = document.getElementById('builderInlineToolbar');
+
+  // View Mode Buttons (Simulasi)
   const btnViewLive = document.getElementById('btnViewLive');
   const btnViewTarget = document.getElementById('btnViewTarget');
   const btnViewSplit = document.getElementById('btnViewSplit');
-  const btnToggleTrail = document.getElementById('btnToggleTrail');
 
   // Execution Controls
   const btnRun = document.getElementById('btnRun');
@@ -67,6 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const cstatBeepers = document.getElementById('cstatBeepers');
   const celebrateDesc = document.getElementById('celebrateDesc');
 
+  // Builder Engine Instance
+  const wb = window.gvrWorldBuilder || new GvrWorldBuilder();
+  window.gvrWorldBuilder = wb;
+
   // Simulator Runtime State
   const missions = window.GVR_MISSIONS || [];
   let currentMissionIndex = 0;
@@ -77,7 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let isRunning = false;
   let playInterval = null;
   let currentSpeed = 180;
-  let viewMode = 'live';
+  let viewMode = 'live'; // 'live', 'target', 'split'
+  let studioMode = 'simulate'; // 'simulate' or 'build'
 
   // ==========================================
   // TOAST NOTIFICATIONS
@@ -93,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // NAVIGATION MODE SWITCHER (4 MODES)
+  // TOP NAVIGATION SWITCHER (STUDIO vs BANK SOAL)
   // ==========================================
   const modePills = document.querySelectorAll('.nav-tab-btn');
   const tabViews = document.querySelectorAll('.main-tab-view');
@@ -101,21 +113,64 @@ document.addEventListener('DOMContentLoaded', () => {
   modePills.forEach(pill => {
     pill.addEventListener('click', () => {
       const targetTab = pill.getAttribute('data-tab');
-      switchMainTab(targetTab);
+      modePills.forEach(p => p.classList.toggle('active', p === pill));
+      tabViews.forEach(v => v.classList.toggle('active', v.id === targetTab));
+
+      if (targetTab === 'tabSimulator') {
+        renderSimulatorCanvases();
+      }
     });
   });
 
-  function switchMainTab(tabId) {
-    modePills.forEach(p => p.classList.toggle('active', p.getAttribute('data-tab') === tabId));
-    tabViews.forEach(v => v.classList.toggle('active', v.id === tabId));
-
-    if (tabId === 'tabBuilder') {
-      if (window.gvrWorldBuilder) {
-        window.gvrWorldBuilder.init('builderCanvas');
-      }
-    } else if (tabId === 'tabSimulator') {
+  // ==========================================
+  // UNIFIED STUDIO SUBMODE SWITCHER
+  // (Uji Kode vs Desain Peta pada SATU Halaman)
+  // ==========================================
+  function setStudioSubmode(mode) {
+    studioMode = mode;
+    if (mode === 'simulate') {
+      if (btnModeSimulate) btnModeSimulate.classList.add('active');
+      if (btnModeBuild) btnModeBuild.classList.remove('active');
+      if (builderInlineToolbar) builderInlineToolbar.style.display = 'none';
+      if (simViewToolbar) simViewToolbar.style.display = 'flex';
+      if (liveCanvasIndicator) liveCanvasIndicator.textContent = 'KONDISI SAAT INI / LIVE';
+      wb.isEnabled = false;
       renderSimulatorCanvases();
+    } else {
+      if (btnModeBuild) btnModeBuild.classList.add('active');
+      if (btnModeSimulate) btnModeSimulate.classList.remove('active');
+      if (builderInlineToolbar) builderInlineToolbar.style.display = 'flex';
+      if (simViewToolbar) simViewToolbar.style.display = 'none';
+      if (liveCanvasIndicator) liveCanvasIndicator.textContent = 'MODE DESAIN PETA (Klik Kanvas untuk Pasang/Hapus)';
+
+      // Switch viewport to live canvas for builder
+      setViewMode('live');
+
+      // Initialize builder on live canvas
+      wb.init(liveCanvas);
+      wb.syncFromWorlds(world, targetWorld);
+      wb.isEnabled = true;
+      wb.onWorldChanged = (updatedWorld) => {
+        if (wb.activeLayer === 'initial') {
+          world = updatedWorld;
+          world.saveSnapshot();
+          interpreter = new GvrInterpreter(world);
+        } else {
+          targetWorld = updatedWorld;
+        }
+        updateTelemetry('EDITED');
+        updateGvrwPanel();
+      };
+      wb.render();
+      updateGvrwPanel();
     }
+  }
+
+  if (btnModeSimulate) {
+    btnModeSimulate.addEventListener('click', () => setStudioSubmode('simulate'));
+  }
+  if (btnModeBuild) {
+    btnModeBuild.addEventListener('click', () => setStudioSubmode('build'));
   }
 
   // ==========================================
@@ -170,6 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     interpreter = new GvrInterpreter(world);
 
+    // Sync builder instance
+    wb.syncFromWorlds(world, targetWorld);
+
     // Update UI headers
     if (missionBadgePill) missionBadgePill.textContent = `Misi ${currentMission.number}`;
     if (missionTitle) missionTitle.textContent = currentMission.title;
@@ -187,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset controls
     stopRun();
     updateTelemetry('READY');
+    updateGvrwPanel();
     renderSimulatorCanvases();
     updateCarouselActive();
   }
@@ -257,6 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
       loadMission(missions[nextIdx].id);
     });
   }
+
+  // Modal drawer open/close
   if (btnOpenDrawer) {
     btnOpenDrawer.addEventListener('click', () => {
       if (missionDrawerModal) missionDrawerModal.removeAttribute('aria-hidden');
@@ -269,41 +330,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // SIMULATOR RENDERING & VIEWS
+  // VIEWPORT LAYOUT & CANVAS RENDERING
   // ==========================================
-  function renderSimulatorCanvases() {
-    if (liveCanvas) world.render(liveCanvas);
-    if (targetCanvas) targetWorld.render(targetCanvas, { isTargetView: true });
-  }
-
   function setViewMode(mode) {
     viewMode = mode;
-    [btnViewLive, btnViewTarget, btnViewSplit].forEach(b => {
-      if (b) b.classList.remove('active');
-    });
+    if (btnViewLive) btnViewLive.classList.toggle('active', mode === 'live');
+    if (btnViewTarget) btnViewTarget.classList.toggle('active', mode === 'target');
+    if (btnViewSplit) btnViewSplit.classList.toggle('active', mode === 'split');
 
-    if (mode === 'live') {
-      if (btnViewLive) btnViewLive.classList.add('active');
-      if (canvasViewport) {
-        canvasViewport.classList.remove('mode-split');
-        canvasViewport.querySelector('.canvas-box-live').style.display = 'flex';
-      }
-      if (targetCanvasWrapper) targetCanvasWrapper.style.display = 'none';
-    } else if (mode === 'target') {
-      if (btnViewTarget) btnViewTarget.classList.add('active');
-      if (canvasViewport) {
-        canvasViewport.classList.remove('mode-split');
-        canvasViewport.querySelector('.canvas-box-live').style.display = 'none';
-      }
-      if (targetCanvasWrapper) targetCanvasWrapper.style.display = 'flex';
-    } else if (mode === 'split') {
-      if (btnViewSplit) btnViewSplit.classList.add('active');
-      if (canvasViewport) {
-        canvasViewport.classList.add('mode-split');
-        canvasViewport.querySelector('.canvas-box-live').style.display = 'flex';
-      }
-      if (targetCanvasWrapper) targetCanvasWrapper.style.display = 'flex';
+    if (canvasViewport) {
+      canvasViewport.className = 'canvases-viewport mode-' + mode;
     }
+
+    if (targetCanvasWrapper) {
+      targetCanvasWrapper.style.display = (mode === 'target' || mode === 'split') ? 'flex' : 'none';
+    }
+
     renderSimulatorCanvases();
   }
 
@@ -311,40 +353,75 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnViewTarget) btnViewTarget.addEventListener('click', () => setViewMode('target'));
   if (btnViewSplit) btnViewSplit.addEventListener('click', () => setViewMode('split'));
 
+  function renderSimulatorCanvases() {
+    if (studioMode === 'build') {
+      wb.render();
+      return;
+    }
+
+    if (viewMode === 'live' || viewMode === 'split') {
+      if (liveCanvas) {
+        world.render(liveCanvas, { isTargetView: false });
+      }
+    }
+    if (viewMode === 'target' || viewMode === 'split') {
+      if (targetCanvas) {
+        targetWorld.render(targetCanvas, { isTargetView: true });
+      }
+    }
+  }
+
   // ==========================================
-  // TELEMETRY & LINE GUTTER
+  // TELEMETRY HUD & GVRW UPDATE
   // ==========================================
   function updateTelemetry(status = 'READY') {
     if (telPos) telPos.textContent = `(${world.robot.x}, ${world.robot.y})`;
     if (telDir) telDir.textContent = world.robot.dir;
     if (telBag) telBag.textContent = world.robot.beepers.toString();
+    
+    if (telWorld) {
+      let totalB = 0;
+      world.beepers.forEach(c => totalB += c);
+      telWorld.textContent = `${totalB} beeper`;
+    }
+
     if (telSteps) telSteps.textContent = world.robot.stepCount.toString();
     if (telStatus) {
       telStatus.textContent = status;
-      telStatus.className = 'hud-item-val ' + (status === 'RUNNING' ? 'text-blue' : status === 'FINISHED' ? 'text-emerald' : status === 'CRASHED' ? 'text-rose' : '');
-    }
-
-    // Count world beepers
-    if (telWorld) {
-      let bCount = 0;
-      world.beepers.forEach(c => bCount += c);
-      telWorld.textContent = bCount.toString();
+      telStatus.className = 'hud-item-val ' + (
+        status === 'RUNNING' ? 'text-amber' :
+        status === 'FINISHED' ? 'text-emerald' :
+        status === 'CRASHED' ? 'text-rose' : 'text-emerald'
+      );
     }
   }
 
-  function updateLineGutter(activeLineNo = null) {
+  function updateGvrwPanel() {
+    const textarea = document.getElementById('builderGvrwText');
+    if (textarea && document.activeElement !== textarea) {
+      textarea.value = world.toGvrw();
+    }
+  }
+
+  // ==========================================
+  // EDITOR LINE GUTTER & SYNTAX
+  // ==========================================
+  function updateLineGutter(activeLineNum = null) {
     if (!editorTextarea || !editorGutter) return;
     const lines = editorTextarea.value.split('\n');
     const count = lines.length;
 
-    let gutterHtml = '';
+    let html = '';
     for (let i = 1; i <= count; i++) {
-      const isActive = i === activeLineNo ? ' active-line' : '';
-      gutterHtml += `<div class="${isActive}">${i}</div>`;
+      const isActive = i === activeLineNum;
+      html += `<div class="gutter-num${isActive ? ' active-line' : ''}">${i}</div>`;
     }
-    editorGutter.innerHTML = gutterHtml;
+    editorGutter.innerHTML = html;
 
-    if (telLines) telLines.textContent = count.toString();
+    if (telLines) {
+      const codeLines = lines.filter(l => l.trim() && !l.trim().startsWith('#')).length;
+      telLines.textContent = codeLines.toString();
+    }
   }
 
   if (editorTextarea) {
@@ -353,7 +430,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (editorGutter) editorGutter.scrollTop = editorTextarea.scrollTop;
     });
 
-    // Handle Tab key
     editorTextarea.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         e.preventDefault();
@@ -405,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Subtabs switcher
+  // Subtabs switcher in editor pane
   const subtabBtns = document.querySelectorAll('.subtab-btn');
   const subtabPanels = document.querySelectorAll('.subtab-panel');
   subtabBtns.forEach(btn => {
@@ -413,6 +489,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const target = btn.getAttribute('data-subtab');
       subtabBtns.forEach(b => b.classList.toggle('active', b === btn));
       subtabPanels.forEach(p => p.classList.toggle('active', p.id === target));
+      if (target === 'paneGvrw') {
+        updateGvrwPanel();
+      }
     });
   });
 
@@ -462,7 +541,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function runStep() {
     if (!interpreter.stack.length || interpreter.isFinished) {
-      // Finished
       stopRun();
       updateTelemetry('FINISHED');
       updateLineGutter();
@@ -487,6 +565,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startRun() {
+    // If currently in builder mode, switch back to simulation view seamlessly
+    if (studioMode === 'build') {
+      setStudioSubmode('simulate');
+    }
+
     if (isRunning) {
       stopRun();
       updateTelemetry('PAUSED');
@@ -494,7 +577,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (interpreter.isFinished || !interpreter.stack.length) {
-      // Re-parse code from editor
       const code = editorTextarea ? editorTextarea.value : '';
       if (!code.trim()) {
         showToast('⚠️ Editor kosong! Tuliskan kode program GvRng terlebih dahulu.');
@@ -520,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnRun) btnRun.addEventListener('click', startRun);
   if (btnStep) {
     btnStep.addEventListener('click', () => {
+      if (studioMode === 'build') setStudioSubmode('simulate');
       if (isRunning) stopRun();
       if (interpreter.isFinished || !interpreter.stack.length) {
         const code = editorTextarea ? editorTextarea.value : '';
@@ -542,10 +625,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const diffs = world.diffState(targetWorld);
 
     if (diffs.length === 0) {
-      // SUCCESS!
       showCelebrationModal();
     } else {
-      // Show first issue
       showToast('⚠️ Belum selesai: ' + diffs[0], 5000);
       logTerminal('Validasi gagal: ' + diffs.join('; '), 'error');
     }
@@ -578,10 +659,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // WORLD BUILDER STUDIO INTEGRATION
+  // INLINE WORLD BUILDER CONTROLS
   // ==========================================
-  const wb = window.gvrWorldBuilder;
-
   // Layer buttons
   const btnBuilderLayerInitial = document.getElementById('btnBuilderLayerInitial');
   const btnBuilderLayerGoal = document.getElementById('btnBuilderLayerGoal');
@@ -604,6 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const toolBtns = document.querySelectorAll('.builder-tool-btn');
   const robotToolOptions = document.getElementById('robotToolOptions');
   const beeperToolOptions = document.getElementById('beeperToolOptions');
+  const eraserToolOptions = document.getElementById('eraserToolOptions');
 
   toolBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -613,6 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (robotToolOptions) robotToolOptions.style.display = tool === 'robot' ? 'flex' : 'none';
       if (beeperToolOptions) beeperToolOptions.style.display = tool === 'beeper' ? 'flex' : 'none';
+      if (eraserToolOptions) eraserToolOptions.style.display = tool === 'eraser' ? 'flex' : 'none';
     });
   });
 
@@ -633,22 +714,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Beeper delta
+  // Beeper options (+1, -1, 0 Hapus)
   const btnBeeperPlus = document.getElementById('btnBeeperPlus');
   const btnBeeperMinus = document.getElementById('btnBeeperMinus');
-  if (btnBeeperPlus) {
-    btnBeeperPlus.addEventListener('click', () => {
-      btnBeeperPlus.classList.add('active');
-      if (btnBeeperMinus) btnBeeperMinus.classList.remove('active');
-      wb.beeperDelta = 1;
+  const btnBeeperZero = document.getElementById('btnBeeperZero');
+
+  function updateBeeperPills(activeBtn, delta) {
+    [btnBeeperPlus, btnBeeperMinus, btnBeeperZero].forEach(b => {
+      if (b) b.classList.toggle('active', b === activeBtn);
     });
+    wb.beeperDelta = delta;
+  }
+
+  if (btnBeeperPlus) {
+    btnBeeperPlus.addEventListener('click', () => updateBeeperPills(btnBeeperPlus, 1));
   }
   if (btnBeeperMinus) {
-    btnBeeperMinus.addEventListener('click', () => {
-      btnBeeperMinus.classList.add('active');
-      if (btnBeeperPlus) btnBeeperPlus.classList.remove('active');
-      wb.beeperDelta = -1;
+    btnBeeperMinus.addEventListener('click', () => updateBeeperPills(btnBeeperMinus, -1));
+  }
+  if (btnBeeperZero) {
+    btnBeeperZero.addEventListener('click', () => updateBeeperPills(btnBeeperZero, 0));
+  }
+
+  // Eraser options (all, beeper, wall)
+  const btnEraserAll = document.getElementById('btnEraserAll');
+  const btnEraserBeeper = document.getElementById('btnEraserBeeper');
+  const btnEraserWall = document.getElementById('btnEraserWall');
+
+  function updateEraserPills(activeBtn, filter) {
+    [btnEraserAll, btnEraserBeeper, btnEraserWall].forEach(b => {
+      if (b) b.classList.toggle('active', b === activeBtn);
     });
+    wb.eraserFilter = filter;
+  }
+
+  if (btnEraserAll) {
+    btnEraserAll.addEventListener('click', () => updateEraserPills(btnEraserAll, 'all'));
+  }
+  if (btnEraserBeeper) {
+    btnEraserBeeper.addEventListener('click', () => updateEraserPills(btnEraserBeeper, 'beeper'));
+  }
+  if (btnEraserWall) {
+    btnEraserWall.addEventListener('click', () => updateEraserPills(btnEraserWall, 'wall'));
   }
 
   // Grid resizing
@@ -660,6 +767,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const c = parseInt(builderCols.value, 10) || 15;
       const r = parseInt(builderRows.value, 10) || 15;
       wb.resizeGrid(c, r);
+      world = wb.initialWorld;
+      targetWorld = wb.goalWorld;
+      interpreter = new GvrInterpreter(world);
       showToast(`Ukuran kisi diubah ke ${c} × ${r}`);
     });
   }
@@ -670,6 +780,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnLoadPreset && presetSelect) {
     btnLoadPreset.addEventListener('click', () => {
       wb.loadPreset(presetSelect.value);
+      world = wb.initialWorld;
+      targetWorld = wb.goalWorld;
+      interpreter = new GvrInterpreter(world);
       showToast('Preset dimuat!');
     });
   }
@@ -680,25 +793,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (confirm('Yakin ingin membersihkan semua tembok dan beeper pada peta ini?')) {
         wb.getActiveWorld().clearAll();
         wb.render();
-        wb.updateGvrwTextarea();
-        wb.updateHUDStats();
+        updateGvrwPanel();
+        updateTelemetry('CLEARED');
         showToast('Peta dibersihkan.');
       }
     });
   }
 
-  // Save Custom World
-  const btnSaveCustomWorld = document.getElementById('btnSaveCustomWorld');
-  const customWorldTitle = document.getElementById('customWorldTitle');
-  if (btnSaveCustomWorld) {
-    btnSaveCustomWorld.addEventListener('click', () => {
-      const title = customWorldTitle ? customWorldTitle.value.trim() : '';
-      const saved = wb.saveCustomWorld(title);
-      showToast(`💾 Peta "${saved.title}" berhasil disimpan di browser!`);
-    });
-  }
-
-  // .gvrw Code buttons
+  // .gvrw Code buttons (Authentic format without 'size')
   const btnCopyGvrw = document.getElementById('btnCopyGvrw');
   const btnDownloadGvrw = document.getElementById('btnDownloadGvrw');
   const btnLoadFromGvrw = document.getElementById('btnLoadFromGvrw');
@@ -717,7 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'peta-kustom.gvrw';
+      a.download = 'peta-gvrng.gvrw';
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -726,30 +828,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnLoadFromGvrw && builderGvrwText) {
     btnLoadFromGvrw.addEventListener('click', () => {
       wb.loadFromGvrwText(builderGvrwText.value);
+      world = wb.initialWorld;
+      interpreter = new GvrInterpreter(world);
+      updateTelemetry('UPDATED');
       showToast('Teks .gvrw diterapkan ke kanvas!');
-    });
-  }
-
-  // Launch into Simulator Button (The core integration!)
-  const btnTestInSimulator = document.getElementById('btnTestInSimulator');
-  if (btnTestInSimulator) {
-    btnTestInSimulator.addEventListener('click', () => {
-      const title = customWorldTitle && customWorldTitle.value.trim() ? customWorldTitle.value.trim() : 'Peta Kustom Mandiri';
-      
-      // Register into GVR_MISSIONS
-      if (window.registerCustomMission) {
-        const customEntry = window.registerCustomMission({
-          title,
-          description: `Peta teka-teki kustom berukuran ${wb.initialWorld.cols}×${wb.initialWorld.rows}. Selesaikan target misi!`,
-          initialWorld: wb.initialWorld,
-          goalWorld: wb.goalWorld
-        });
-
-        populateMissionCarousel();
-        loadMission(customEntry.id);
-        switchMainTab('tabSimulator');
-        showToast('🚀 Peta kustom berhasil dimuat ke Simulator! Tuliskan kodenya sekarang.', 4000);
-      }
     });
   }
 
@@ -760,4 +842,5 @@ document.addEventListener('DOMContentLoaded', () => {
   populateMissionCarousel();
   loadMission(missions[0].id);
   setViewMode('live');
+  setStudioSubmode('simulate');
 });

@@ -25,11 +25,15 @@ class GvrWorldBuilder {
     // Builder UI State
     this.activeLayer = 'initial'; // 'initial' or 'goal'
     this.activeTool = 'wall'; // 'wall', 'robot', 'beeper', 'eraser'
+    this.eraserFilter = 'all'; // 'all', 'beeper', 'wall'
     this.robotDir = 'EAST';
     this.robotBag = 0;
     this.beeperDelta = 1;
     this.hoverTarget = null;
     this.isMouseDown = false;
+    this.isEnabled = false;
+    this._eventsBound = false;
+    this.onWorldChanged = null; // Callback for real-time sync with simulator runtime
 
     // Custom Worlds Storage
     this.storageKey = 'gvrng_custom_worlds_v2';
@@ -40,13 +44,30 @@ class GvrWorldBuilder {
     return this.activeLayer === 'initial' ? this.initialWorld : this.goalWorld;
   }
 
-  init(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) return;
-
-    this.bindCanvasEvents();
+  syncFromWorlds(initial, goal) {
+    if (initial) {
+      this.initialWorld = initial;
+    }
+    if (goal) {
+      this.goalWorld = goal;
+    }
     this.render();
     this.updateGvrwTextarea();
+    this.updateHUDStats();
+  }
+
+  init(canvasId) {
+    this.canvas = typeof canvasId === 'string' ? document.getElementById(canvasId) : canvasId;
+    if (!this.canvas) return;
+
+    if (!this._eventsBound) {
+      this.bindCanvasEvents();
+      this._eventsBound = true;
+    }
+    this.isEnabled = true;
+    this.render();
+    this.updateGvrwTextarea();
+    this.updateHUDStats();
   }
 
   // ==========================================
@@ -70,6 +91,7 @@ class GvrWorldBuilder {
 
     // Hover & Move
     const onMove = (evt) => {
+      if (!this.isEnabled) return;
       const { px, py } = getCanvasPos(evt);
       const hit = this.getActiveWorld().hitTest(px, py, canvas, 20);
 
@@ -79,6 +101,7 @@ class GvrWorldBuilder {
 
     // Click / Pointer Down
     const onDown = (evt) => {
+      if (!this.isEnabled) return;
       const { px, py } = getCanvasPos(evt);
       this.isMouseDown = true;
       this.applyToolAt(px, py);
@@ -91,8 +114,28 @@ class GvrWorldBuilder {
     const onLeave = () => {
       this.isMouseDown = false;
       this.hoverTarget = null;
-      this.render();
+      if (this.isEnabled) this.render();
     };
+
+    // Right click (contextmenu) quick erase
+    canvas.addEventListener('contextmenu', (evt) => {
+      evt.preventDefault();
+      const { px, py } = getCanvasPos(evt);
+      const world = this.getActiveWorld();
+      const hit = world.hitTest(px, py, this.canvas, 20);
+      if (hit.hasBeeper && hit.cell) {
+        const cur = world.getBeeperCount(hit.cell.x, hit.cell.y);
+        world.setBeeper(hit.cell.x, hit.cell.y, Math.max(0, cur - 1));
+      } else if (hit.existingWall) {
+        if (hit.existingWall.type === 'hwall') world.removeHWall(hit.existingWall.a, hit.existingWall.s);
+        else if (hit.existingWall.type === 'vwall') world.removeVWall(hit.existingWall.a, hit.existingWall.s);
+      }
+      world.saveSnapshot();
+      this.render();
+      this.updateGvrwTextarea();
+      this.updateHUDStats();
+      if (this.onWorldChanged) this.onWorldChanged(world);
+    });
 
     canvas.addEventListener('mousemove', onMove);
     canvas.addEventListener('mousedown', onDown);
@@ -115,7 +158,7 @@ class GvrWorldBuilder {
 
   applyToolAt(px, py) {
     const world = this.getActiveWorld();
-    const hit = world.hitTest(px, py, this.canvas, 24);
+    const hit = world.hitTest(px, py, this.canvas, 20);
 
     if (this.activeTool === 'wall') {
       if (hit.wall) {
@@ -125,8 +168,6 @@ class GvrWorldBuilder {
           world.toggleVWall(hit.wall.a, hit.wall.s);
         }
       } else if (hit.cell) {
-        // Fallback: tap inside cell toggles nearest wall edge
-        // Determine whether top, bottom, left, or right wall is closest
         const trans = world.getTransform(this.canvas);
         const cellCenter = trans.toPx(hit.cell.x + 0.5, hit.cell.y + 0.5);
         const dx = px - cellCenter.px;
@@ -145,16 +186,40 @@ class GvrWorldBuilder {
       }
     } else if (this.activeTool === 'beeper') {
       if (hit.cell) {
-        const cur = world.getBeeperCount(hit.cell.x, hit.cell.y);
-        const next = cur + this.beeperDelta;
-        world.setBeeper(hit.cell.x, hit.cell.y, Math.max(0, next));
+        if (this.beeperDelta === 0) {
+          // Direct Delete / Zero beeper
+          world.setBeeper(hit.cell.x, hit.cell.y, 0);
+        } else {
+          const cur = world.getBeeperCount(hit.cell.x, hit.cell.y);
+          const next = cur + this.beeperDelta;
+          world.setBeeper(hit.cell.x, hit.cell.y, Math.max(0, next));
+        }
       }
     } else if (this.activeTool === 'eraser') {
-      if (hit.wall) {
-        if (hit.wall.type === 'hwall') world.removeHWall(hit.wall.a, hit.wall.s);
-        else if (hit.wall.type === 'vwall') world.removeVWall(hit.wall.a, hit.wall.s);
-      } else if (hit.cell) {
-        world.setBeeper(hit.cell.x, hit.cell.y, 0);
+      if (this.eraserFilter === 'beeper') {
+        if (hit.cell) world.setBeeper(hit.cell.x, hit.cell.y, 0);
+      } else if (this.eraserFilter === 'wall') {
+        if (hit.existingWall) {
+          if (hit.existingWall.type === 'hwall') world.removeHWall(hit.existingWall.a, hit.existingWall.s);
+          else if (hit.existingWall.type === 'vwall') world.removeVWall(hit.existingWall.a, hit.existingWall.s);
+        }
+      } else {
+        // Smart Eraser (Auto):
+        // 1. If cell has beeper:
+        if (hit.hasBeeper) {
+          if (hit.existingWall && hit.existingWall.dist < hit.cellCenterDist) {
+            if (hit.existingWall.type === 'hwall') world.removeHWall(hit.existingWall.a, hit.existingWall.s);
+            else if (hit.existingWall.type === 'vwall') world.removeVWall(hit.existingWall.a, hit.existingWall.s);
+          } else {
+            world.setBeeper(hit.cell.x, hit.cell.y, 0);
+          }
+        } else if (hit.existingWall) {
+          if (hit.existingWall.type === 'hwall') world.removeHWall(hit.existingWall.a, hit.existingWall.s);
+          else if (hit.existingWall.type === 'vwall') world.removeVWall(hit.existingWall.a, hit.existingWall.s);
+        } else if (hit.cell) {
+          // Fallback: clear beepers in cell
+          world.setBeeper(hit.cell.x, hit.cell.y, 0);
+        }
       }
     }
 
@@ -162,6 +227,9 @@ class GvrWorldBuilder {
     this.render();
     this.updateGvrwTextarea();
     this.updateHUDStats();
+    if (this.onWorldChanged) {
+      this.onWorldChanged(world);
+    }
   }
 
   // Set active tool
@@ -340,3 +408,4 @@ class GvrWorldBuilder {
 
 // Global instance
 window.gvrWorldBuilder = new GvrWorldBuilder();
+

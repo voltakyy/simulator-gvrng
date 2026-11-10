@@ -88,6 +88,14 @@ class GvrWorld {
     this.hWalls.delete(`${a},${s}`);
   }
 
+  hasHWall(a, s) {
+    return this.hWalls.has(`${a},${s}`);
+  }
+
+  hasVWall(a, s) {
+    return this.vWalls.has(`${a},${s}`);
+  }
+
   toggleHWall(a, s) {
     if (a < 1 || a >= this.cols || s < 1 || s > this.rows) return false;
     const key = `${a},${s}`;
@@ -358,27 +366,26 @@ class GvrWorld {
 
   // ==========================================
   // GVRW SERIALIZATION (.gvrw)
+  // Standard Authentic Guido van Robot Format (No alien 'size' command)
   // ==========================================
   toGvrw() {
     const lines = [];
     lines.push(`# Guido van Robot World (.gvrw)`);
-    lines.push(`# Dibuat dengan GvRng Studio Web Builder`);
-    lines.push(`size ${this.cols} ${this.rows}`);
     lines.push(`robot ${this.robot.x} ${this.robot.y} ${this.robot.dir[0]} ${this.robot.beepers}`);
 
-    // Horizontal walls
+    // Horizontal walls (wall Avenue Street N)
     this.hWalls.forEach(key => {
       const [a, s] = key.split(',');
       lines.push(`wall ${a} ${s} N`);
     });
 
-    // Vertical walls
+    // Vertical walls (wall Avenue Street E)
     this.vWalls.forEach(key => {
       const [a, s] = key.split(',');
       lines.push(`wall ${a} ${s} E`);
     });
 
-    // Beepers
+    // Beepers (beepers Avenue Street Count)
     this.beepers.forEach((count, key) => {
       if (count > 0) {
         const [x, y] = key.split(',');
@@ -393,6 +400,9 @@ class GvrWorld {
     if (!text || typeof text !== 'string') return;
     this.clearAll();
 
+    let maxAvenue = 15;
+    let maxStreet = 15;
+
     const lines = text.split('\n');
     lines.forEach(raw => {
       const clean = raw.trim();
@@ -401,9 +411,13 @@ class GvrWorld {
       const cmd = parts[0].toLowerCase();
 
       if (cmd === 'size' && parts.length >= 3) {
+        // Optional legacy fallback if present
         const c = parseInt(parts[1], 10);
         const r = parseInt(parts[2], 10);
-        if (!isNaN(c) && !isNaN(r)) this.resize(c, r);
+        if (!isNaN(c) && !isNaN(r)) {
+          maxAvenue = Math.max(maxAvenue, c);
+          maxStreet = Math.max(maxStreet, r);
+        }
       } else if (cmd === 'robot' && parts.length >= 4) {
         const x = parseInt(parts[1], 10);
         const y = parseInt(parts[2], 10);
@@ -414,11 +428,15 @@ class GvrWorld {
         else if (dirLetter.startsWith('W')) dir = 'WEST';
         else if (dirLetter.startsWith('E')) dir = 'EAST';
         const beepers = parts[4] !== undefined ? parseInt(parts[4], 10) : 0;
+        maxAvenue = Math.max(maxAvenue, x + 2);
+        maxStreet = Math.max(maxStreet, y + 2);
         this.setRobot(x, y, dir, isNaN(beepers) ? 0 : beepers);
       } else if (cmd === 'wall' && parts.length >= 4) {
         const a = parseInt(parts[1], 10);
         const s = parseInt(parts[2], 10);
         const dir = parts[3].toUpperCase();
+        maxAvenue = Math.max(maxAvenue, a + 2);
+        maxStreet = Math.max(maxStreet, s + 2);
         if (dir.startsWith('N')) this.addHWall(a, s);
         else if (dir.startsWith('S')) this.addHWall(a, s - 1);
         else if (dir.startsWith('E')) this.addVWall(a, s);
@@ -427,9 +445,15 @@ class GvrWorld {
         const x = parseInt(parts[1], 10);
         const y = parseInt(parts[2], 10);
         const count = parseInt(parts[3], 10);
+        maxAvenue = Math.max(maxAvenue, x + 2);
+        maxStreet = Math.max(maxStreet, y + 2);
         if (!isNaN(count) && count > 0) this.setBeeper(x, y, count);
       }
     });
+
+    if (maxAvenue > this.cols || maxStreet > this.rows) {
+      this.resize(Math.max(this.cols, maxAvenue), Math.max(this.rows, maxStreet));
+    }
 
     this.saveSnapshot();
   }
@@ -511,12 +535,27 @@ class GvrWorld {
     return { dpr, padX, padY, availW, availH, cellSize, startX, startY, toPx, fromPx };
   }
 
-  hitTest(px, py, canvas, threshold = 18) {
+  hitTest(px, py, canvas, threshold = 20) {
     const { startX, startY, cellSize, toPx } = this.getTransform(canvas);
 
-    // 1. Check dot-to-dot walls
-    let bestWall = null;
-    let minWallDist = threshold;
+    // 1. Cell coordinates (intersection cell gx, gy)
+    const cellX = Math.floor((px - startX) / cellSize) + 1;
+    const cellY = Math.floor((startY + cellSize - py) / cellSize);
+    const isInsideCell = cellX >= 1 && cellX <= this.cols && cellY >= 1 && cellY <= this.rows;
+
+    let cellCenterDist = 999;
+    let beeperCount = 0;
+    if (isInsideCell) {
+      const center = toPx(cellX + 0.5, cellY + 0.5);
+      cellCenterDist = Math.hypot(px - center.px, py - center.py);
+      beeperCount = this.getBeeperCount(cellX, cellY);
+    }
+
+    // 2. Check dot-to-dot walls
+    let existingWall = null;
+    let closestWallSlot = null;
+    let minExistingDist = threshold;
+    let minSlotDist = threshold;
 
     // Horizontal walls: Street s from Avenue a to a+1
     for (let a = 1; a < this.cols; a++) {
@@ -525,9 +564,16 @@ class GvrWorld {
         const p2 = toPx(a + 1, s);
         if (px >= p1.px - 6 && px <= p2.px + 6) {
           const dist = Math.abs(py - p1.py);
-          if (dist < minWallDist) {
-            minWallDist = dist;
-            bestWall = { type: 'hwall', a, s, dist };
+          const wallKey = `${a},${s}`;
+          const isPresent = this.hWalls.has(wallKey);
+
+          if (isPresent && dist < minExistingDist) {
+            minExistingDist = dist;
+            existingWall = { type: 'hwall', a, s, dist };
+          }
+          if (dist < minSlotDist) {
+            minSlotDist = dist;
+            closestWallSlot = { type: 'hwall', a, s, dist };
           }
         }
       }
@@ -540,18 +586,20 @@ class GvrWorld {
         const p2 = toPx(a, s + 1);
         if (py <= p1.py + 6 && py >= p2.py - 6) {
           const dist = Math.abs(px - p1.px);
-          if (dist < minWallDist) {
-            minWallDist = dist;
-            bestWall = { type: 'vwall', a, s, dist };
+          const wallKey = `${a},${s}`;
+          const isPresent = this.vWalls.has(wallKey);
+
+          if (isPresent && dist < minExistingDist) {
+            minExistingDist = dist;
+            existingWall = { type: 'vwall', a, s, dist };
+          }
+          if (dist < minSlotDist) {
+            minSlotDist = dist;
+            closestWallSlot = { type: 'vwall', a, s, dist };
           }
         }
       }
     }
-
-    // 2. Cell coordinates (intersection cell gx, gy)
-    const cellX = Math.floor((px - startX) / cellSize) + 1;
-    const cellY = Math.floor((startY + cellSize - py) / cellSize);
-    const isInsideCell = cellX >= 1 && cellX <= this.cols && cellY >= 1 && cellY <= this.rows;
 
     // 3. Nearest grid intersection dot (gx, gy)
     const dotX = Math.round((px - startX) / cellSize) + 1;
@@ -559,8 +607,12 @@ class GvrWorld {
     const isInsideGrid = dotX >= 1 && dotX <= this.cols && dotY >= 1 && dotY <= this.rows;
 
     return {
-      wall: bestWall,
+      wall: closestWallSlot,
+      existingWall,
       cell: isInsideCell ? { x: cellX, y: cellY } : null,
+      beeperCount,
+      hasBeeper: beeperCount > 0,
+      cellCenterDist,
       dot: isInsideGrid ? { x: dotX, y: dotY } : null
     };
   }
@@ -705,30 +757,54 @@ class GvrWorld {
       ctx.stroke();
     });
 
-    // 5. Beepers (Rendered in cell centers)
+    // 5. Beepers (Rendered in cell centers with radiant golden amber tokens)
     this.beepers.forEach((count, key) => {
       if (count <= 0) return;
       const [gx, gy] = key.split(',').map(Number);
       const { px, py } = toPx(gx + 0.5, gy + 0.5);
 
+      // Safe minimum radius so it's always readable even on dense 26x12 grids
+      const bRadius = Math.max(10, Math.min(18, cellSize * 0.40));
+      const fontSize = Math.max(9, Math.min(13, Math.round(bRadius * 1.05)));
+
+      // Outer golden glow
       ctx.beginPath();
-      ctx.arc(px, py, cellSize * 0.36, 0, Math.PI * 2);
-      ctx.fillStyle = options.isTargetView ? 'rgba(16, 185, 129, 0.18)' : 'rgba(59, 130, 246, 0.18)';
+      ctx.arc(px, py, bRadius + 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = options.isTargetView ? 'rgba(16, 185, 129, 0.28)' : 'rgba(245, 158, 11, 0.32)';
       ctx.fill();
 
+      // Main Token Disc (Vibrant Gradient)
       ctx.beginPath();
-      ctx.arc(px, py, cellSize * 0.28, 0, Math.PI * 2);
-      ctx.fillStyle = options.isTargetView ? '#059669' : '#2563eb';
+      ctx.arc(px, py, bRadius, 0, Math.PI * 2);
+      const grad = ctx.createLinearGradient(px, py - bRadius, px, py + bRadius);
+      if (options.isTargetView) {
+        grad.addColorStop(0, '#34d399'); // emerald light
+        grad.addColorStop(1, '#059669'); // emerald dark
+      } else {
+        grad.addColorStop(0, '#fbbf24'); // amber light (radiant gold)
+        grad.addColorStop(1, '#d97706'); // amber dark (rich gold)
+      }
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Crisp border: 2px white outline + 1px dark contrast border
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2;
-      ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 12px "JetBrains Mono", monospace';
+      ctx.beginPath();
+      ctx.arc(px, py, bRadius + 1, 0, Math.PI * 2);
+      ctx.strokeStyle = options.isTargetView ? '#064e3b' : '#78350f';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // High-contrast number badge
+      ctx.fillStyle = options.isTargetView ? '#ffffff' : '#451a03';
+      ctx.font = `bold ${fontSize}px "JetBrains Mono", ui-monospace, monospace`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(count.toString(), px, py);
+      const textToDisplay = count > 99 ? '99+' : count.toString();
+      ctx.fillText(textToDisplay, px, py + 0.5);
     });
 
     // 6. Robot (Arrow Vehicle)
@@ -774,6 +850,26 @@ class GvrWorld {
       ctx.fill();
 
       ctx.restore();
+
+      // Overlap indicator badge if robot is standing on top of a beeper cell
+      const robotCellKey = `${this.robot.x},${this.robot.y}`;
+      const beeperCountUnderRobot = this.beepers.get(robotCellKey) || 0;
+      if (beeperCountUnderRobot > 0) {
+        const badgeX = px + cellSize * 0.35;
+        const badgeY = py - cellSize * 0.35;
+        ctx.beginPath();
+        ctx.arc(badgeX, badgeY, 9, 0, Math.PI * 2);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.fillStyle = '#451a03';
+        ctx.font = 'bold 9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(beeperCountUnderRobot.toString(), badgeX, badgeY + 0.5);
+      }
     }
 
     ctx.restore();
