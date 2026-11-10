@@ -757,7 +757,7 @@ class GvrWorld {
       ctx.stroke();
     });
 
-    // 5. Beepers (Rendered in cell centers with radiant golden amber tokens)
+    // 5. Beepers (Rendered in cell centers with ocean blue tokens)
     this.beepers.forEach((count, key) => {
       if (count <= 0) return;
       const [gx, gy] = key.split(',').map(Number);
@@ -767,13 +767,13 @@ class GvrWorld {
       const bRadius = Math.max(10, Math.min(18, cellSize * 0.40));
       const fontSize = Math.max(9, Math.min(13, Math.round(bRadius * 1.05)));
 
-      // Outer golden glow
+      // Outer sea-blue glow
       ctx.beginPath();
       ctx.arc(px, py, bRadius + 2.5, 0, Math.PI * 2);
-      ctx.fillStyle = options.isTargetView ? 'rgba(16, 185, 129, 0.28)' : 'rgba(245, 158, 11, 0.32)';
+      ctx.fillStyle = options.isTargetView ? 'rgba(16, 185, 129, 0.28)' : 'rgba(14, 165, 233, 0.35)';
       ctx.fill();
 
-      // Main Token Disc (Vibrant Gradient)
+      // Main Token Disc (Ocean Blue Gradient)
       ctx.beginPath();
       ctx.arc(px, py, bRadius, 0, Math.PI * 2);
       const grad = ctx.createLinearGradient(px, py - bRadius, px, py + bRadius);
@@ -781,25 +781,25 @@ class GvrWorld {
         grad.addColorStop(0, '#34d399'); // emerald light
         grad.addColorStop(1, '#059669'); // emerald dark
       } else {
-        grad.addColorStop(0, '#fbbf24'); // amber light (radiant gold)
-        grad.addColorStop(1, '#d97706'); // amber dark (rich gold)
+        grad.addColorStop(0, '#38bdf8'); // cyan sea blue
+        grad.addColorStop(1, '#0284c7'); // deep ocean blue
       }
       ctx.fillStyle = grad;
       ctx.fill();
 
-      // Crisp border: 2px white outline + 1px dark contrast border
+      // Crisp border: 2px white outline + 1px deep ocean contrast border
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2;
       ctx.stroke();
 
       ctx.beginPath();
       ctx.arc(px, py, bRadius + 1, 0, Math.PI * 2);
-      ctx.strokeStyle = options.isTargetView ? '#064e3b' : '#78350f';
+      ctx.strokeStyle = options.isTargetView ? '#064e3b' : '#0369a1';
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // High-contrast number badge
-      ctx.fillStyle = options.isTargetView ? '#ffffff' : '#451a03';
+      // High-contrast crisp white number badge
+      ctx.fillStyle = '#ffffff';
       ctx.font = `bold ${fontSize}px "JetBrains Mono", ui-monospace, monospace`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -859,12 +859,12 @@ class GvrWorld {
         const badgeY = py - cellSize * 0.35;
         ctx.beginPath();
         ctx.arc(badgeX, badgeY, 9, 0, Math.PI * 2);
-        ctx.fillStyle = '#f59e0b';
+        ctx.fillStyle = '#0284c7';
         ctx.fill();
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 1.5;
         ctx.stroke();
-        ctx.fillStyle = '#451a03';
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 9px "JetBrains Mono", monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
