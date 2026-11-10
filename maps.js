@@ -119,6 +119,7 @@ define susur:
     pass
 `,
     solutionCode: `# Solusi Resmi Quiz Dasprog B Soal 1 (21 Baris, Batas: 35 Baris)
+# Logika Simetris: 16 langkah ke puncak + 16 langkah pulang = do 32
 define turnright:
     do 3:
         turnleft
@@ -135,16 +136,79 @@ define susur:
                 turnleft
                 move
             else:
-                if facing_west:
-                    turnoff
-                else:
-                    do 2:
-                        turnleft
-                    move
+                do 2:
+                    turnleft
+                move
 
-while not_next_to_a_beeper:
-    susur`,
-    logicExplanation: `Trik Logika Aslab:\n1. Lorong ini memiliki satu pintu masuk di barat dan ujung buntu di puncak menara ketiga.\n2. Dengan algoritma "Right-Hand Rule" (mengutamakan kanan terbuka -> lurus -> kiri -> putar balik), robot secara otomatis menaiki ketiga menara lorong sampai mentok, lalu berbalik menyusuri lorong yang sama kembali pulang!\n3. Saat tiba kembali di titik awal (4, 7), robot menghadap BARAT (\`WEST\`) ke arah dinding keluar. Loop \`while not_facing_west\` berhenti seketika, dan robot mematikan diri (\`turnoff\`) tepat di titik awal!`
+do 32:
+    susur
+turnoff`,
+    logicExplanation: `Rumus Menghitung Langkah Ujian (Mudah Diingat!):
+1. Lorong ini memiliki 3 menara bertingkat naik-turun yang simetris.
+2. Perjalanan dari pintu masuk (4, 7) ke puncak menara ketiga adalah 16 langkah (naik menara 1: 4 langkah, menara 2: 5 langkah, menara 3: 7 langkah = 16).
+3. Perjalanan pulang menuruni ketiga menara kembali ke pintu masuk juga tepat 16 langkah.
+4. Total langkah: 16 + 16 = 32 langkah (do 32: susur). Tidak perlu menghitung sudut satu-satu!
+5. Alternatif tanpa angka 32: tulis 'do 16: susur' lalu 'do 16: susur' (pergi dan pulang).`,
+    alternativeSolutions: [
+      {
+        name: 'Skema 1: Solusi Resmi Aslab (do 32 — Paling Ringkas 21 Baris)',
+        desc: 'Standar resmi dosen & aslab: 16 langkah pergi + 16 langkah pulang = do 32.',
+        code: `define turnright:
+    do 3:
+        turnleft
+
+define susur:
+    if right_is_clear:
+        turnright
+        move
+    else:
+        if front_is_clear:
+            move
+        else:
+            if left_is_clear:
+                turnleft
+                move
+            else:
+                do 2:
+                    turnleft
+                move
+
+do 32:
+    susur
+turnoff`
+      },
+      {
+        name: 'Skema 2: Simetris Pergi-Pulang (do 16 pergi, do 16 pulang)',
+        desc: 'Lebih mudah dibayangkan di kepala: 16 langkah ke puncak, 16 langkah kembali pulang.',
+        code: `define turnright:
+    do 3:
+        turnleft
+
+define susur:
+    if right_is_clear:
+        turnright
+        move
+    else:
+        if front_is_clear:
+            move
+        else:
+            if left_is_clear:
+                turnleft
+                move
+            else:
+                do 2:
+                    turnleft
+                move
+
+# 16 langkah pergi ke puncak
+do 16:
+    susur
+# 16 langkah pulang ke pintu awal
+do 16:
+    susur
+turnoff`
+      }
+    ]
   },
 
   // =========================================================================
@@ -192,7 +256,8 @@ define ambil_sampah:
     # TODO: Angkat beeper jika ada
     pass
 `,
-    solutionCode: `# Solusi Resmi Quiz Dasprog B Soal 2
+    solutionCode: `# Solusi Resmi Quiz Dasprog B Soal 2 (28 Baris Kode)
+# Logika Standar: Kaidah tangan kanan menyapu seluruh lorong (34 langkah)
 define turnright:
     do 3:
         turnleft
@@ -218,14 +283,54 @@ define langkah:
                     turnleft
                 move
 
-while any_beepers_in_world:
+do 34:
     langkah
-
-do 3:
-    langkah
-
+ambil_semua
+while not_facing_west:
+    turnleft
 turnoff`,
-    logicExplanation: `Bedah Kode Solusi:\n1. Fungsi \`ambil_semua\` menjamin robot memungut setiap sampah beeper saat melewatinya.\n2. Algoritma penelusuran dinding kanan (\`right_is_clear\` -> \`front_is_clear\` -> \`left_is_clear\`) memandu robot menjelajahi seluruh ruangan gedung tanpa terlewat.\n3. Kondisi loop \`while any_beepers_in_world: langkah\` membuat robot terus bergerak sampai seluruh 6 sampah bersih total.\n4. Setelah semua sampah bersih, robot kembali ke titik awal (4, 7) dan mematikan diri.`
+    logicExplanation: `Rumus Langkah Ujian (Quiz Dasprog B Soal 2):
+1. Robot menyusuri seluruh dinding kanan gedung dan memungut beeper di setiap ruangan.
+2. Panjang total sirkuit gedung adalah 34 langkah.
+3. Setelah 34 langkah, robot kembali tiba di pintu masuk (4, 7).
+4. Pastikan robot menghadap barat dengan 'while not_facing_west: turnleft', lalu 'turnoff'.`,
+    alternativeSolutions: [
+      {
+        name: 'Skema 1: Solusi Resmi Quiz Dasprog B (do 34)',
+        desc: 'Sesuai kunci resmi praktikum: ambil_semua beeper di tiap langkah lalu 34 langkah susur.',
+        code: `define turnright:
+    do 3:
+        turnleft
+
+define ambil_semua:
+    while next_to_a_beeper:
+        pickbeeper
+
+define langkah:
+    ambil_semua
+    if right_is_clear:
+        turnright
+        move
+    else:
+        if front_is_clear:
+            move
+        else:
+            if left_is_clear:
+                turnleft
+                move
+            else:
+                do 2:
+                    turnleft
+                move
+
+do 34:
+    langkah
+ambil_semua
+while not_facing_west:
+    turnleft
+turnoff`
+      }
+    ]
   },
 
   // =========================================================================
@@ -282,6 +387,7 @@ define ambil_semua:
         pickbeeper
 `,
     solutionCode: `# Solusi Resmi Aslab 2 (17 Baris Kode, Batas: 22 Baris)
+# Rumus Cepat: 4 Menara x 22 Langkah = do 88 (atau do 4: do 22: langkah)
 define turnright:
     do 3:
         turnleft
@@ -295,15 +401,91 @@ define langkah:
     move
 
 move
-while any_beepers_in_world:
+do 88:
     langkah
-
-do 2:
-    move
+move
 turnright
 move
 turnoff`,
-    logicExplanation: `Trik Aslab Paling Krusial:\n1. Jumlah beeper berbeda-beda di tiap titik (terdapat 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 beeper dengan total 55 beeper). Menggunakan pickbeeper tunggal akan gagal karena menyisakan beeper di puncak & lembah!\n2. Fungsi \`langkah\` menerapkan algoritma penelusuran dinding kiri klasik: ambil semua beeper, belok kiri, lalu selama depan terhalang belok kanan, kemudian melangkah maju.\n3. Robot menyusuri seluruh lorong menara naik dan turun, menguras seluruh 55 beeper, lalu kembali ke titik keluar di barat, belok kanan ke (3, 5), dan turnoff persis sesuai Gambar 2.2 Aslab!`
+    logicExplanation: `Rumus Angka 88 yang Wajib Diketahui Mahasiswa:
+1. Peta terdiri dari 4 Menara yang polanya identik naik-turun.
+2. Setiap 1 menara (naik ke puncak lalu turun ke lembah) memakan waktu tepat 22 langkah.
+3. Karena ada 4 menara: 4 x 22 = 88 langkah!
+4. Alternatif penulisan agar tidak perlu mengingat 88: gunakan loop bertingkat 'do 4: do 22: langkah' atau 'do 2: do 44: langkah' (44 langkah pergi + 44 langkah pulang).
+5. Setelah 88 langkah selesai, robot tiba di (4, 4) barat. Cukup 'move' ke (3, 4), 'turnright', lalu 'move' ke (3, 5) NORTH dan 'turnoff' sesuai Gambar 2.2 Aslab!`,
+    alternativeSolutions: [
+      {
+        name: 'Skema 1: Solusi Resmi Aslab (do 88 — Paling Ringkas 17 Baris)',
+        desc: 'Kunci jawaban asli aslab: 17 baris kode (batas 22 baris). 88 = 4 menara x 22 langkah.',
+        code: `define turnright:
+    do 3:
+        turnleft
+
+define langkah:
+    while next_to_a_beeper:
+        pickbeeper
+    turnleft
+    while front_is_blocked:
+        turnright
+    move
+
+move
+do 88:
+    langkah
+move
+turnright
+move
+turnoff`
+      },
+      {
+        name: 'Skema 2: Modular 4 Menara x 22 Langkah (do 4: do 22: langkah)',
+        desc: 'Sangat mudah diingat: 4 menara masing-masing 22 langkah.',
+        code: `define turnright:
+    do 3:
+        turnleft
+
+define langkah:
+    while next_to_a_beeper:
+        pickbeeper
+    turnleft
+    while front_is_blocked:
+        turnright
+    move
+
+move
+do 4:
+    do 22:
+        langkah
+move
+turnright
+move
+turnoff`
+      },
+      {
+        name: 'Skema 3: Simetris Pergi-Pulang (do 2: do 44: langkah)',
+        desc: '44 langkah pergi ke ujung timur, 44 langkah pulang ke ujung barat.',
+        code: `define turnright:
+    do 3:
+        turnleft
+
+define langkah:
+    while next_to_a_beeper:
+        pickbeeper
+    turnleft
+    while front_is_blocked:
+        turnright
+    move
+
+move
+do 2:
+    do 44:
+        langkah
+move
+turnright
+move
+turnoff`
+      }
+    ]
   },
 
   // =========================================================================
@@ -497,8 +679,65 @@ define circumference:
     # TODO: Kelilingi satu kotak
     pass
 `,
-    solutionCode: `# Solusi Modular Buku Praktikum Halaman 52 (22 Baris, Batas: 30 Baris)
-define move3:
+    solutionCode: `# Solusi Resmi Buku Praktikum Halaman 52 (Alternatif 1 — 20 Baris)
+define circumference:
+    do 4:
+        if next_to_a_beeper:
+            pickbeeper
+        turnleft
+        move
+        if next_to_a_beeper:
+            pickbeeper
+        move
+
+do 3:
+    do 3:
+        move
+    circumference
+
+turnleft
+turnleft
+do 9:
+    move
+turnleft
+turnleft
+turnoff`,
+    logicExplanation: `Analisis Resmi Buku Panduan Praktikum Hal 52:
+1. Program ini sangat ringkas (hanya 20 baris kode dari batas 30 baris).
+2. Fungsi 'circumference' mengitari 4 sisi kotak menggunakan 'do 4', memeriksa dan mengambil beeper di setiap langkah.
+3. Loop 'do 3' memproses ketiga kotak secara berurutan (maju 3 langkah lalu kelilingi kotak).
+4. Di akhir: robot berbalik arah ('turnleft' 2x), melangkah mundur 9 langkah (do 9: move) langsung ke titik awal (2, 1), lalu kembali menghadap timur dan turnoff!`,
+    alternativeSolutions: [
+      {
+        name: 'Skema 1: Solusi Otentik Buku Hal 52 (do 9: move — 20 Baris)',
+        desc: 'Sesuai 100% dengan naskah cetak buku panduan praktikum resmi halaman 52.',
+        code: `define circumference:
+    do 4:
+        if next_to_a_beeper:
+            pickbeeper
+        turnleft
+        move
+        if next_to_a_beeper:
+            pickbeeper
+        move
+
+do 3:
+    do 3:
+        move
+    circumference
+
+turnleft
+turnleft
+do 9:
+    move
+turnleft
+turnleft
+turnoff`
+      },
+      {
+        name: 'Skema 2: Modular move3 (22 Baris)',
+        desc: 'Menggunakan fungsi move3 untuk melangkah 3 petak antar kotak dan saat pulang.',
+        code: `define move3:
     do 3:
         move
 
@@ -522,8 +761,9 @@ do 3:
     move3
 do 2:
     turnleft
-turnoff`,
-    logicExplanation: `Analisis Buku Hal 52 (Alternatif 1):\n1. Program ini sangat ringkas (hanya 20 baris kode).\n2. Fungsi \`circumference\` mengitari 4 sisi kotak menggunakan \`do 4\`, memeriksa beeper di setiap langkah.\n3. Loop \`do 3\` memproses ketiga kotak secara berurutan.\n4. Robot berbalik arah (\`turnleft\` 2x) dan melangkah mundur 9 langkah langsung ke titik awal.`
+turnoff`
+      }
+    ]
   },
 
   // =========================================================================
