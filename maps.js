@@ -840,7 +840,98 @@ turnoff`,
 3. Jika depan terhalang tembok, robot berputar ke kiri ('else: turnleft') untuk menyesuaikan arah lorong.
 4. Ketika mendeteksi beeper di ujung lorong (posisi 3, 3), perulangan selesai, robot memungut beeper ('pickbeeper') lalu mematikan sistem ('turnoff').`
   }
-];$2 = function(customWorld) {
+,
+
+  // =========================================================================
+  // MISI 10 / LATIHAN 1: LINTASAN ULAR S ZIG-ZAG (3 LANTAI)
+  // =========================================================================
+  {
+    id: 'latihan_1',
+    number: 10,
+    title: 'Latihan 1: Lintasan Ular S Zig-Zag (3 Lantai)',
+    source: 'Latihan Mandiri Algoritma GvRng — Soal Baru',
+    category: 'Latihan Mandiri Siswa',
+    badge: 'Latihan 1 • Tingkat Dasar',
+    badgeType: 'badge-blue',
+    prompt: 'Robot harus menyusuri lorong bertingkat 3 lantai secara zig-zag (pola huruf S), memungut 3 beeper di setiap ujung belokan lantai, dan berhenti di garis finish di Lantai 3 (10,3) EAST.',
+    constraints: {
+      maxLines: 35,
+      requiredKeywords: ['define', 'while'],
+      mustClearAllBeepers: true,
+      mustTurnoff: true
+    },
+    cols: 11,
+    rows: 5,
+    initialRobot: { x: 2, y: 1, dir: 'EAST', beepers: 0 },
+    initialBeepers: [
+      [10, 1, 1], [2, 2, 1], [10, 3, 1]
+    ],
+    targetState: {
+      description: 'Robot mengambil seluruh 3 beeper dan berhenti di (10, 3) EAST lalu turnoff.',
+      finalRobot: { x: 10, y: 3, dir: 'EAST', beepers: 3, isOff: true },
+      remainingBeepers: 0
+    },
+    hWalls: [
+      [1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],
+      [3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2]
+    ],
+    vWalls: [
+      [1,1],[1,2],[1,3],
+      [10,1],[10,2],[10,3]
+    ],
+    starterCode: `# Latihan 1: Lintasan Ular S Zig-Zag
+# Petunjuk: Gunakan perulangan while front_is_clear agar tidak perlu hitung langkah!
+
+define turnright:
+    do 3:
+        turnleft
+
+# TODO: Lengkapi program sampai finish di (10,3) EAST
+`,
+    solutionCode: `define turnright:
+    do 3:
+        turnleft
+
+define naik_lantai_kiri:
+    turnleft
+    move
+    turnleft
+
+define naik_lantai_kanan:
+    turnright
+    move
+    turnright
+
+# Lantai 1: Lari ke Timur sampai ujung lorong
+while front_is_clear:
+    move
+pickbeeper
+
+# Naik ke Lantai 2 (putar balik ke Barat)
+naik_lantai_kiri
+
+# Lantai 2: Lari ke Barat sampai ujung lorong
+while front_is_clear:
+    move
+pickbeeper
+
+# Naik ke Lantai 3 (putar balik ke Timur)
+naik_lantai_kanan
+
+# Lantai 3: Lari ke Timur menuju garis finish
+while front_is_clear:
+    move
+pickbeeper
+turnoff`,
+    logicExplanation: `Strategi Algoritma Latihan 1:
+1. Membagi navigasi lorong bertingkat menjadi 2 makro pergerakan transisi: 'naik_lantai_kiri' dan 'naik_lantai_kanan'.
+2. Di sepanjang koridor lurus masing-masing lantai, robot cukup meluncur dengan 'while front_is_clear: move' tanpa perlu menghitung jarak langkah (bebas hitung langkah manual!).
+3. Saat membentur tembok ujung lantai, robot memungut koin checkpoint beeper ('pickbeeper') lalu naik ke lantai berikutnya secara otomatis.
+4. Di Lantai 3, setelah menyedot beeper terakhir robot mematikan daya ('turnoff') dan misi selesai dengan sempurna!`
+  }
+];
+
+window.registerCustomMission = function(customWorld) {
   const existingIdx = window.GVR_MISSIONS.findIndex(m => m.id === 'misi-custom');
 
   const hWalls = [];

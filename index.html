@@ -451,6 +451,8 @@
     <!-- VIEW 2: MATERI & POLA VISUAL LABIRIN (PANDUAN ANTI-HITUNG DO) -->
         <!-- ======================================================================= -->
     <!-- VIEW 2: MATERI & POLA VISUAL LABIRIN (CANVAS 2D GRAFIS NYATA DENGAN PANAH KUNING) -->
+        <!-- ======================================================================= -->
+    <!-- VIEW 2: MATERI & POLA VISUAL LABIRIN (CANVAS 2D GRAFIS NYATA DENGAN PANAH KUNING) -->
     <!-- ======================================================================= -->
     <div id="tabMateri" class="main-tab-view">
       <div class="materi-content-wrapper">
@@ -499,6 +501,89 @@
                 4. Maju 1 petak. Bahu kiri robot selalu menempel rapat ke dinding!
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- LATIHAN 1: SOAL BARU & VISUAL KANVAS LATIHAN MANDIRI SISWA -->
+        <!-- ================================================================= -->
+        <div class="materi-card" id="materiCard_latihan_1" style="border-left: 4px solid var(--color-primary);">
+          <div class="materi-card-header">
+            <h3 class="materi-card-title">🎯 Latihan 1: Lintasan Ular S Zig-Zag (3 Lantai Bertingkat)</h3>
+            <span class="materi-badge-pill" style="background:#2563eb; color:#fff;">Latihan 1 Mandiri • Soal Baru</span>
+          </div>
+          <p class="materi-card-desc">
+            Robot harus menavigasi lorong gedung 3 lantai yang berkelok seperti huruf <strong>S</strong>. Ambil beeper di setiap ujung belokan lantai, lalu lari menuju garis finish di lantai teratas (10,3) EAST tanpa perlu menebak atau menghitung langkah manual!
+          </p>
+          <div class="materi-visual-grid">
+            <!-- REAL 2D CANVAS -->
+            <div>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🎮 Visualisator Kanvas 2D &amp; Lintasan Nyata</strong>
+              <div class="materi-canvas-wrap">
+                <canvas class="materi-interactive-canvas" data-mission-id="latihan_1" width="560" height="340"></canvas>
+                <div class="materi-canvas-foot">
+                  <div class="materi-playback-bar">
+                    <button class="btn-materi-playback" data-action="play" data-target="latihan_1">▶️ Putar Animasi</button>
+                    <button class="btn-materi-playback" data-action="reset" data-target="latihan_1">↺ Reset</button>
+                    <span class="materi-step-badge" id="stepBadge_latihan_1">Lintasan Lengkap (27 Titik)</span>
+                  </div>
+                  <div class="materi-canvas-legend">
+                    <span class="mleg-item"><span class="mleg-dot start"></span> Start (2,1)</span>
+                    <span class="mleg-item"><span class="mleg-line"></span> Lintasan Gerak &amp; Arah Panah</span>
+                    <span class="mleg-item"><span class="mleg-dot beeper"></span> 3 Beeper Lantai</span>
+                    <span class="mleg-item"><span class="mleg-dot finish"></span> Finish (10,3)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CODE & LOGIC -->
+            <div>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas (Pola Moduler Naik Lantai)</strong>
+              <pre class="materi-code-box"><code>define turnright:
+    do 3:
+        turnleft
+
+define naik_lantai_kiri:
+    turnleft
+    move
+    turnleft
+
+define naik_lantai_kanan:
+    turnright
+    move
+    turnright
+
+# Lantai 1: Lari ke Timur sampai ujung lorong
+while front_is_clear:
+    move
+pickbeeper
+
+# Naik ke Lantai 2 (putar balik ke Barat)
+naik_lantai_kiri
+
+# Lantai 2: Lari ke Barat sampai ujung lorong
+while front_is_clear:
+    move
+pickbeeper
+
+# Naik ke Lantai 3 (putar balik ke Timur)
+naik_lantai_kanan
+
+# Lantai 3: Lari ke Timur menuju garis finish
+while front_is_clear:
+    move
+pickbeeper
+turnoff</code></pre>
+              <div class="materi-rationale-box" style="margin-top:8px;">
+                <strong>Trik Ujian:</strong> Jangan pernah menghitung langkah per petak! Pecah lorong bertingkat menjadi 2 fungsi transisi tangga: <code>naik_lantai_kiri</code> dan <code>naik_lantai_kanan</code>. Di setiap lantai, cukup biarkan sensor <code>while front_is_clear: move</code> meluncur otomatis sampai membentur tembok ujung!
+              </div>
+            </div>
+          </div>
+          <div class="materi-card-actions">
+            <button class="btn-materi-load" data-mission-id="latihan_1">
+              ▶️ Buka &amp; Jalankan di Simulator Studio
+            </button>
           </div>
         </div>
 
