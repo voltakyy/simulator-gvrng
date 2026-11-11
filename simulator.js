@@ -759,12 +759,21 @@ class GvrWorld {
     ctx.lineTo(pTL.px, pTL.py);
     ctx.stroke();
 
-    // 2. Path Trail (Live simulation path history)
+    // 2. Path Trail (Live simulation or educational path history)
     if (!options.isTargetView && this.pathHistory && this.pathHistory.length > 1) {
       ctx.save();
-      ctx.strokeStyle = 'rgba(0, 102, 204, 0.35)';
-      ctx.lineWidth = 3;
-      ctx.setLineDash([4, 4]);
+      const isHighlighted = !!(options.highlightTrail || options.isMateriView);
+      if (isHighlighted) {
+        ctx.strokeStyle = '#93c5fd'; // Soft sky blue matching reference image
+        ctx.lineWidth = 2.8;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.setLineDash([5, 4]); // Dashed line just like user screenshot!
+      } else {
+        ctx.strokeStyle = 'rgba(0, 102, 204, 0.4)';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([4, 4]);
+      }
       ctx.beginPath();
       const pStart = toCellCenter(this.pathHistory[0].x, this.pathHistory[0].y);
       ctx.moveTo(pStart.px, pStart.py);
@@ -773,9 +782,116 @@ class GvrWorld {
         ctx.lineTo(pt.px, pt.py);
       }
       ctx.stroke();
+      ctx.setLineDash([]); // Reset line dash for markers and arrows
+
+      // Bold Yellow Directional Arrows (like user reference)
+      if (isHighlighted) {
+        // Collect directed movement segments (ignoring in-place turns)
+        const moveSegments = [];
+        for (let i = 1; i < this.pathHistory.length; i++) {
+          const from = this.pathHistory[i - 1];
+          const to = this.pathHistory[i];
+          if (from.x !== to.x || from.y !== to.y) {
+            moveSegments.push({ from, to });
+          }
+        }
+
+        let lastArrowPx = -9999, lastArrowPy = -9999;
+        const totalSegs = moveSegments.length;
+
+        for (let i = 0; i < totalSegs; i++) {
+          const seg = moveSegments[i];
+          const p1 = toCellCenter(seg.from.x, seg.from.y);
+          const p2 = toCellCenter(seg.to.x, seg.to.y);
+          const dx = p2.px - p1.px;
+          const dy = p2.py - p1.py;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist > 1) {
+            const mx = (p1.px + p2.px) / 2;
+            const my = (p1.py + p2.py) / 2;
+            const distFromLast = Math.hypot(mx - lastArrowPx, my - lastArrowPy);
+
+            const isTurn = (i === 0) || (i === totalSegs - 1) ||
+              (seg.from.x - seg.to.x !== moveSegments[i - 1].from.x - moveSegments[i - 1].to.x) ||
+              (seg.from.y - seg.to.y !== moveSegments[i - 1].from.y - moveSegments[i - 1].to.y);
+
+            // Draw arrow if at a turn or spaced adequately along straight runs
+            if (isTurn || distFromLast >= cellSize * 0.85) {
+              const angle = Math.atan2(dy, dx);
+              const arrowLen = Math.min(22, Math.max(13, dist * 0.52));
+              const headLen = arrowLen * 0.44;
+              const headW = Math.min(11, arrowLen * 0.5);
+              const stemW = 3.2;
+
+              ctx.save();
+              ctx.translate(mx, my);
+              ctx.rotate(angle);
+
+              ctx.fillStyle = '#facc15'; // Bright vivid yellow
+              ctx.strokeStyle = '#ca8a04'; // Crisp golden outline
+              ctx.lineWidth = 1.2;
+              ctx.lineJoin = 'miter';
+
+              const half = arrowLen / 2;
+              const headBase = half - headLen;
+
+              ctx.beginPath();
+              ctx.moveTo(-half, -stemW / 2);
+              ctx.lineTo(headBase, -stemW / 2);
+              ctx.lineTo(headBase, -headW / 2);
+              ctx.lineTo(half, 0);
+              ctx.lineTo(headBase, headW / 2);
+              ctx.lineTo(headBase, stemW / 2);
+              ctx.lineTo(-half, stemW / 2);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+
+              ctx.restore();
+
+              lastArrowPx = mx;
+              lastArrowPy = my;
+            }
+          }
+        }
+
+        // Highlighted Educational Trail Start & Finish Badges
+        const p0 = toCellCenter(this.pathHistory[0].x, this.pathHistory[0].y);
+        const pEnd = toCellCenter(this.pathHistory[this.pathHistory.length - 1].x, this.pathHistory[this.pathHistory.length - 1].y);
+        const markerR = Math.max(6, Math.min(13, cellSize * 0.28));
+
+        // Start Marker (Emerald Green Pin)
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(p0.px, p0.py, markerR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold ' + Math.max(7, Math.round(markerR * 0.95)) + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('S', p0.px, p0.py);
+
+        // Finish Marker (Crimson Red Pin)
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(pEnd.px, pEnd.py, markerR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold ' + Math.max(7, Math.round(markerR * 0.95)) + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('F', pEnd.px, pEnd.py);
+      }
+
       ctx.restore();
     }
-
     // 3. Hover Indicators (for World Builder live feedback)
     if (options.hover) {
       if (options.hover.wall) {
@@ -908,6 +1024,9 @@ class GvrWorld {
       if (this.robot.isOff) {
         ctx.fillStyle = '#64748b';
         ctx.strokeStyle = '#334155';
+      } else if (options.isMateriView) {
+        ctx.fillStyle = '#334155';
+        ctx.strokeStyle = '#1e293b';
       } else if (options.isTargetView) {
         ctx.fillStyle = '#059669';
         ctx.strokeStyle = '#047857';
@@ -950,6 +1069,33 @@ class GvrWorld {
       }
     }
 
+    // 7. Top-Left Status Badge for Materi View (matching user reference screenshot)
+    if (options.isMateriView) {
+      ctx.save();
+      const badgeText = options.badgeText || 'KONDISI SAAT INI / LIVE';
+      ctx.font = 'bold 11px "JetBrains Mono", ui-monospace, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace';
+      const textWidth = ctx.measureText(badgeText).width;
+      const bPadX = 10;
+      const bH = 22;
+      const bW = textWidth + bPadX * 2;
+      const bX = 14;
+      const bY = 12;
+
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(bX, bY, bW, bH, 5);
+      } else {
+        ctx.rect(bX, bY, bW, bH);
+      }
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(badgeText, bX + bPadX, bY + bH / 2);
+      ctx.restore();
+    }
     ctx.restore();
   }
 }

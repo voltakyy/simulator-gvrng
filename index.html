@@ -449,15 +449,17 @@
 
     <!-- ======================================================================= -->
     <!-- VIEW 2: MATERI & POLA VISUAL LABIRIN (PANDUAN ANTI-HITUNG DO) -->
+        <!-- ======================================================================= -->
+    <!-- VIEW 2: MATERI & POLA VISUAL LABIRIN (CANVAS 2D GRAFIS NYATA DENGAN PANAH KUNING) -->
     <!-- ======================================================================= -->
     <div id="tabMateri" class="main-tab-view">
       <div class="materi-content-wrapper">
 
         <!-- Intro Card -->
         <div class="materi-intro-card">
-          <h2 class="materi-intro-title">📖 Panduan Visual Algoritma &amp; Logika Lintasan GvRng</h2>
+          <h2 class="materi-intro-title">🎨 Panduan Grafis Visual Algoritma &amp; Pola Lintasan GvRng</h2>
           <p class="materi-intro-desc">
-            Siswa tidak perlu lagi menghitung puluhan langkah manual (seperti <code>do 88: langkah</code>)! Kuasai pola sensor cerdas (<code>while</code>, <code>if</code>, <code>else</code>) untuk menyelesaikan setiap variasi labirin secara elegan, tahan banting, dan mudah diingat saat ujian praktikum.
+            Bukan sekadar teks atau gambar garis terminal! Setiap teka-teki di bawah dirender langsung menggunakan <strong>Kanvas 2D Simulator Asli</strong> lengkap dengan kisi koordinat, dinding merah, koin beeper, <strong>jejak lintasan biru bertitik</strong>, dan <strong>panah navigasi kuning</strong> yang menunjukkan arah gerak robot secara persis. Tekan tombol <strong>▶️ Putar Animasi</strong> untuk melihat simulasi langkah demi langkah!
           </p>
         </div>
 
@@ -468,7 +470,7 @@
             <span class="materi-badge-pill">Wajib di Awal Kode</span>
           </div>
           <p class="materi-card-desc">
-            Karena robot Karel/GvRng secara bawaan hanya bisa belok kiri (<code>turnleft</code>), kita cukup mendefinisikan 2 fungsi ini sekali saja di bagian paling atas:
+            Karena robot Karel/GvRng secara bawaan hanya memiliki instruksi belok kiri (<code>turnleft</code>), kedua fungsi ini menjadi pondasi wajib untuk menavigasi dinding secara otomatis:
           </p>
           <div class="materi-visual-grid">
             <div>
@@ -477,7 +479,7 @@
     do 3:
         turnleft</code></pre>
               <div class="materi-rationale-box" style="margin-top:8px;">
-                <strong>Logika:</strong> Putar kiri 3 kali (90° &times; 3 = 270°) menghasilkan hadap kanan yang sama persis.
+                <strong>Logika Matematika:</strong> 1 kali putar kiri = 90°. Putar kiri 3 kali = 270° berlawanan arah jarum jam, yang posisinya persis sama dengan belok kanan 90° searah jarum jam!
               </div>
             </div>
             <div>
@@ -490,7 +492,11 @@
         turnright
     move</code></pre>
               <div class="materi-rationale-box" style="margin-top:8px;">
-                <strong>Logika:</strong> Bersihkan beeper &rarr; tengok kiri &rarr; jika ada tembok di depan, putar kanan sampai plong &rarr; maju 1 langkah. Bahu kiri selalu menempel rapat ke dinding!
+                <strong>Logika 4 Tahap:</strong>
+                1. Bersihkan koin di petak saat ini &rarr;
+                2. Tengok ke kiri &rarr;
+                3. Jika ada tembok menghadang di depan, putar kanan sampai jalur plong &rarr;
+                4. Maju 1 petak. Bahu kiri robot selalu menempel rapat ke dinding!
               </div>
             </div>
           </div>
@@ -500,31 +506,34 @@
         <div class="materi-card">
           <div class="materi-card-header">
             <h3 class="materi-card-title">🧩 Pola 1: Lintasan 4 Menara Beeper (Naik-Turun Lembah)</h3>
-            <span class="materi-badge-pill">Misi 4 Resmi</span>
+            <span class="materi-badge-pill">Misi 4 Resmi • 17 Baris</span>
           </div>
           <p class="materi-card-desc">
-            Robot harus mendaki 4 menara tinggi berundak-undak, memungut 55 beeper di puncak dan lembah, lalu keluar lorong dan mati di (3,5) NORTH.
+            Robot harus mendaki 4 menara bertingkat, memungut 55 beeper di puncak dan lembah, lalu keluar lorong dan mati di (3,5) NORTH.
           </p>
           <div class="materi-visual-grid">
+            <!-- REAL 2D CANVAS -->
             <div>
-              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🗺️ Peta Grid Visual &amp; Jejak Lintasan</strong>
-              <pre class="materi-ascii-box"><code>  y
- 15 ┌─────────────────────────┐
- 14 │ ┌─┐   ┌─┐   ┌─┐   ┌─┐   │
- 13 │ │⭐│   │⭐│   │⭐│   │⭐│   │  (Puncak Menara)
- 12 │ │ │   │ │   │ │   │ │   │
- 11 │ │ └───┘ │   │ └───┘ │   │
- 10 │ │   ⭐   │   │   ⭐   │   │  (Lembah Beeper)
-  9 │ │       │   │       │   │
-  5 │ 🏁◄─┐   │   │       │   │
-  4 │ 🤖──┴───┘   └───────┘   │  ← Start (3,4) EAST
-  1 └─────────────────────────┘
-      1 2 3 4 5 6 7 8 9 ...  x
-
-Jejak: Masuk (4,4) &rarr; Naik Menara 1 &rarr; Turun &rarr;
-Naik Menara 2 &rarr; Turun &rarr; Naik Menara 3 &rarr; Turun &rarr;
-Naik Menara 4 &rarr; Keluar ke (3,4) WEST &rarr; Maju ke 🏁(3,5)</code></pre>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🎮 Visualisator Kanvas 2D &amp; Lintasan Nyata</strong>
+              <div class="materi-canvas-wrap">
+                <canvas class="materi-interactive-canvas" data-mission-id="menara" width="560" height="340"></canvas>
+                <div class="materi-canvas-foot">
+                  <div class="materi-playback-bar">
+                    <button class="btn-materi-playback" data-action="play" data-target="menara">▶️ Putar Animasi</button>
+                    <button class="btn-materi-playback" data-action="reset" data-target="menara">↺ Reset</button>
+                    <span class="materi-step-badge" id="stepBadge_menara">Lintasan Lengkap (92 Titik)</span>
+                  </div>
+                  <div class="materi-canvas-legend">
+                    <span class="mleg-item"><span class="mleg-dot start"></span> Start (3,4)</span>
+                    <span class="mleg-item"><span class="mleg-line"></span> Lintasan Gerak &amp; Arah Panah</span>
+                    <span class="mleg-item"><span class="mleg-dot beeper"></span> 55 Beeper</span>
+                    <span class="mleg-item"><span class="mleg-dot finish"></span> Finish (3,5)</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- CODE & LOGIC -->
             <div>
               <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas (Bebas Hitung do 88!)</strong>
               <pre class="materi-code-box"><code>move
@@ -546,37 +555,113 @@ turnoff</code></pre>
           </div>
           <div class="materi-card-actions">
             <button class="btn-materi-load" data-mission-id="menara">
-              ▶️ Muat Misi 4 &amp; Uji di Simulator
+              ▶️ Buka &amp; Jalankan di Simulator Studio
             </button>
           </div>
         </div>
 
-        <!-- Pola 2: Misi 9 - Kamar Bercabang di Koridor -->
+        <!-- Pola 2: Misi 7 - Mengelilingi 3 Kotak Hambatan -->
         <div class="materi-card">
           <div class="materi-card-header">
-            <h3 class="materi-card-title">🧩 Pola 2: Kamar Bercabang di Koridor (Mampir Ruangan)</h3>
-            <span class="materi-badge-pill">Misi 9 Resmi</span>
+            <h3 class="materi-card-title">🧩 Pola 2: Mengelilingi 3 Kotak Hambatan (Buku Hal 52)</h3>
+            <span class="materi-badge-pill">Misi 7 Resmi • Buku Praktikum Hal 52</span>
+          </div>
+          <p class="materi-card-desc">
+            Robot mulai dari (2,1) menghadap EAST, harus mengitari 3 kotak rintangan di koordinat (4,2), (7,2), (10,2), menyapu seluruh koin beeper, lalu kembali ke posisi semula (2,1) dan turnoff.
+          </p>
+          <div class="materi-visual-grid">
+            <!-- REAL 2D CANVAS -->
+            <div>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🎮 Visualisator Kanvas 2D &amp; Lintasan Nyata</strong>
+              <div class="materi-canvas-wrap">
+                <canvas class="materi-interactive-canvas" data-mission-id="tiga_kotak_alt1" width="560" height="340"></canvas>
+                <div class="materi-canvas-foot">
+                  <div class="materi-playback-bar">
+                    <button class="btn-materi-playback" data-action="play" data-target="tiga_kotak_alt1">▶️ Putar Animasi</button>
+                    <button class="btn-materi-playback" data-action="reset" data-target="tiga_kotak_alt1">↺ Reset</button>
+                    <span class="materi-step-badge" id="stepBadge_tiga_kotak_alt1">Lintasan Lengkap (43 Titik)</span>
+                  </div>
+                  <div class="materi-canvas-legend">
+                    <span class="mleg-item"><span class="mleg-dot start"></span> Start (2,1)</span>
+                    <span class="mleg-item"><span class="mleg-line"></span> Lintasan Gerak &amp; Arah Panah</span>
+                    <span class="mleg-item"><span class="mleg-dot beeper"></span> Beeper Tersebar</span>
+                    <span class="mleg-item"><span class="mleg-dot finish"></span> Finish (2,1)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CODE & LOGIC -->
+            <div>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Moduler Siswa Cerdas (Buku Praktikum)</strong>
+              <pre class="materi-code-box"><code>define circumference:
+    do 4:
+        if next_to_a_beeper:
+            pickbeeper
+        turnleft
+        move
+        if next_to_a_beeper:
+            pickbeeper
+        move
+
+# Mengelilingi 3 kotak satu per satu
+do 3:
+    do 3:
+        move
+    circumference
+
+# Pulang kembali ke titik start (2,1)
+turnleft
+turnleft
+do 9:
+    move
+turnleft
+turnleft
+turnoff</code></pre>
+              <div class="materi-rationale-box" style="margin-top:8px;">
+                <strong>Trik Ujian:</strong> Kotak berbentuk bujur sangkar simetris 4 sisi! Cukup buat satu fungsi <code>circumference</code> yang mengitari 4 sisi kotak dengan loop <code>do 4:</code>. Setelah mengitari ketiga kotak, robot cukup putar balik 180° dan lari lurus kembali ke koordinat awal.
+              </div>
+            </div>
+          </div>
+          <div class="materi-card-actions">
+            <button class="btn-materi-load" data-mission-id="tiga_kotak_alt1">
+              ▶️ Buka &amp; Jalankan di Simulator Studio
+            </button>
+          </div>
+        </div>
+
+        <!-- Pola 3: Misi 9 - Kamar Bercabang di Koridor -->
+        <div class="materi-card">
+          <div class="materi-card-header">
+            <h3 class="materi-card-title">🧩 Pola 3: Kamar Bercabang di Koridor (Mampir Ruangan)</h3>
+            <span class="materi-badge-pill">Misi 9 Resmi • 9 Baris</span>
           </div>
           <p class="materi-card-desc">
             Robot berjalan di lorong panjang. Jika mendeteksi pintu ruangan di sebelah kiri, robot harus mampir, mengambil beeper di ujung kamar, putar balik, lalu lanjut berjalan.
           </p>
           <div class="materi-visual-grid">
+            <!-- REAL 2D CANVAS -->
             <div>
-              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🗺️ Peta Grid Visual &amp; Jejak Lintasan</strong>
-              <pre class="materi-ascii-box"><code>  y
-  4 ┌───────────────────────────┐
-    │     ┌───────┐             │
-  3 │     │  ⭐   │   (Kamar)   │
-    │     │   ↑   │             │
-  2 │ 🤖──┼───┘   └─────────────┤
-    │  →  │                     │
-  1 └─────┴─────────────────────┘
-    1     2   3   4   5   6   7   x
-
-Jejak: Maju di koridor &rarr; Cek kiri bolong di x=3 &rarr;
-Belok kiri masuk kamar &rarr; Ambil ⭐ &rarr;
-Putar balik 180° &rarr; Keluar koridor &rarr; Selesai</code></pre>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🎮 Visualisator Kanvas 2D &amp; Lintasan Nyata</strong>
+              <div class="materi-canvas-wrap">
+                <canvas class="materi-interactive-canvas" data-mission-id="mampir_ruangan" width="560" height="340"></canvas>
+                <div class="materi-canvas-foot">
+                  <div class="materi-playback-bar">
+                    <button class="btn-materi-playback" data-action="play" data-target="mampir_ruangan">▶️ Putar Animasi</button>
+                    <button class="btn-materi-playback" data-action="reset" data-target="mampir_ruangan">↺ Reset</button>
+                    <span class="materi-step-badge" id="stepBadge_mampir_ruangan">Lintasan Lengkap (32 Titik)</span>
+                  </div>
+                  <div class="materi-canvas-legend">
+                    <span class="mleg-item"><span class="mleg-dot start"></span> Start (2,2)</span>
+                    <span class="mleg-item"><span class="mleg-line"></span> Lintasan Gerak &amp; Arah Panah</span>
+                    <span class="mleg-item"><span class="mleg-dot beeper"></span> Beeper di Ujung</span>
+                    <span class="mleg-item"><span class="mleg-dot finish"></span> Finish (3,3)</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- CODE & LOGIC -->
             <div>
               <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas (Kombinasi while + if/else)</strong>
               <pre class="materi-code-box"><code>while not_next_to_a_beeper:
@@ -590,45 +675,49 @@ Putar balik 180° &rarr; Keluar koridor &rarr; Selesai</code></pre>
 pickbeeper
 turnoff</code></pre>
               <div class="materi-rationale-box" style="margin-top:8px;">
-                <strong>Trik Ujian:</strong> Hanya butuh 9 baris! Sensor <code>left_is_clear</code> otomatis mendeteksi pintu kamar, dan <code>else: turnleft</code> otomatis memutar robot saat menabrak dinding di ujung kamar.
+                <strong>Trik Ujian:</strong> Hanya butuh 9 baris! Sensor <code>left_is_clear</code> otomatis mendeteksi pintu kamar, dan <code>else: turnleft</code> otomatis memutar robot saat menabrak dinding di ujung kamar tanpa tebak langkah.
               </div>
             </div>
           </div>
           <div class="materi-card-actions">
             <button class="btn-materi-load" data-mission-id="mampir_ruangan">
-              ▶️ Muat Misi 9 &amp; Uji di Simulator
+              ▶️ Buka &amp; Jalankan di Simulator Studio
             </button>
           </div>
         </div>
 
-        <!-- Pola 3: Misi 1 - Spiral Persegi Pak Mukhlis -->
+        <!-- Pola 4: Misi 1 - Spiral Persegi Pak Mukhlis -->
         <div class="materi-card">
           <div class="materi-card-header">
-            <h3 class="materi-card-title">🧩 Pola 3: Labirin Spiral Persegi (Masuk ke Pusat)</h3>
-            <span class="materi-badge-pill">Misi 1 Resmi</span>
+            <h3 class="materi-card-title">🧩 Pola 4: Labirin Spiral Persegi (Masuk ke Pusat)</h3>
+            <span class="materi-badge-pill">Misi 1 Resmi • 7 Baris</span>
           </div>
           <p class="materi-card-desc">
             Robot mulai dari sudut luar dan harus melingkar masuk ke inti ruangan spiral untuk memungut beeper di tengah.
           </p>
           <div class="materi-visual-grid">
+            <!-- REAL 2D CANVAS -->
             <div>
-              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🗺️ Peta Grid Visual &amp; Jejak Lintasan</strong>
-              <pre class="materi-ascii-box"><code>  y
-  5 ┌───────────────────┐
-    │ 🤖──────────────┐ │
-  4 │ ┌─────────────┐ │ │
-    │ │ ┌─────────┐ │ │ │
-  3 │ │ │   ⭐    │ │ │ │  ← Pusat Spiral
-    │ │ └───────┐ │ │ │ │
-  2 │ └─────────┘ │ │ │ │
-    │             │ │ │ │
-  1 └─────────────┴─┴─┴─┘
-    1   2   3   4   5   6   x
-
-Jejak: (1,5) [Timur] &rarr; Pojok kanan &rarr;
-Belok [Selatan] &rarr; Belok [Barat] &rarr; Belok [Utara] &rarr;
-Masuk ke pusat (3,3) ambil ⭐ &rarr; turnoff</code></pre>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🎮 Visualisator Kanvas 2D &amp; Lintasan Nyata</strong>
+              <div class="materi-canvas-wrap">
+                <canvas class="materi-interactive-canvas" data-mission-id="spiral" width="560" height="340"></canvas>
+                <div class="materi-canvas-foot">
+                  <div class="materi-playback-bar">
+                    <button class="btn-materi-playback" data-action="play" data-target="spiral">▶️ Putar Animasi</button>
+                    <button class="btn-materi-playback" data-action="reset" data-target="spiral">↺ Reset</button>
+                    <span class="materi-step-badge" id="stepBadge_spiral">Lintasan Lengkap (35 Titik)</span>
+                  </div>
+                  <div class="materi-canvas-legend">
+                    <span class="mleg-item"><span class="mleg-dot start"></span> Start (2,10)</span>
+                    <span class="mleg-item"><span class="mleg-line"></span> Lintasan Gerak &amp; Arah Panah</span>
+                    <span class="mleg-item"><span class="mleg-dot beeper"></span> 7 Beeper di Pusat</span>
+                    <span class="mleg-item"><span class="mleg-dot finish"></span> Finish (8,6)</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- CODE & LOGIC -->
             <div>
               <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas (Cuma 7 Baris!)</strong>
               <pre class="materi-code-box"><code>while not_next_to_a_beeper:
@@ -646,37 +735,43 @@ turnoff</code></pre>
             </div>
           </div>
           <div class="materi-card-actions">
-            <button class="btn-materi-load" data-mission-id="spiral_mukhlis">
-              ▶️ Muat Misi 1 &amp; Uji di Simulator
+            <button class="btn-materi-load" data-mission-id="spiral">
+              ▶️ Buka &amp; Jalankan di Simulator Studio
             </button>
           </div>
         </div>
 
-        <!-- Pola 4: Misi 2 - Inspeksi Menara Gedung 360° -->
+        <!-- Pola 5: Misi 2 - Inspeksi Menara Gedung 360° -->
         <div class="materi-card">
           <div class="materi-card-header">
-            <h3 class="materi-card-title">🧩 Pola 4: Inspeksi Menara Gedung Keliling 360°</h3>
-            <span class="materi-badge-pill">Misi 2 Resmi</span>
+            <h3 class="materi-card-title">🧩 Pola 5: Inspeksi Menara Gedung Keliling 360°</h3>
+            <span class="materi-badge-pill">Misi 2 Resmi • 13 Baris</span>
           </div>
           <p class="materi-card-desc">
             Robot harus mengitari seluruh sisi luar bangunan bertingkat di tengah ruangan dan kembali ke posisi semula.
           </p>
           <div class="materi-visual-grid">
+            <!-- REAL 2D CANVAS -->
             <div>
-              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🗺️ Peta Grid Visual &amp; Jejak Lintasan</strong>
-              <pre class="materi-ascii-box"><code>  y
-  7 ┌───────────────────┐
-  6 │       ┌───┐       │
-  5 │       │   │       │
-  4 │   ┌───┘   └───┐   │  (Gedung Menara Pusat)
-  3 │   │   ┌───┐   │   │
-  2 │ 🤖│   │   │   │   │  ← Start (2,2)
-  1 └───┴───┴───┴───┴───┘
-    1   2   3   4   5   6   x
-
-Jejak: Menempelkan bahu kanan ke dinding gedung &rarr;
-Mengitari seluruh lekukan 360° &rarr; Kembali ke titik awal</code></pre>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🎮 Visualisator Kanvas 2D &amp; Lintasan Nyata</strong>
+              <div class="materi-canvas-wrap">
+                <canvas class="materi-interactive-canvas" data-mission-id="inspeksi" width="560" height="340"></canvas>
+                <div class="materi-canvas-foot">
+                  <div class="materi-playback-bar">
+                    <button class="btn-materi-playback" data-action="play" data-target="inspeksi">▶️ Putar Animasi</button>
+                    <button class="btn-materi-playback" data-action="reset" data-target="inspeksi">↺ Reset</button>
+                    <span class="materi-step-badge" id="stepBadge_inspeksi">Lintasan Lengkap (33 Titik)</span>
+                  </div>
+                  <div class="materi-canvas-legend">
+                    <span class="mleg-item"><span class="mleg-dot start"></span> Start (4,7)</span>
+                    <span class="mleg-item"><span class="mleg-line"></span> Lintasan Gerak &amp; Arah Panah</span>
+                    <span class="mleg-item"><span class="mleg-dot finish"></span> Finish (4,7)</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- CODE & LOGIC -->
             <div>
               <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas (Susur Tembok Kanan 13 Baris)</strong>
               <pre class="materi-code-box"><code>define turnright:
@@ -694,114 +789,195 @@ while right_is_blocked:
 
 turnoff</code></pre>
               <div class="materi-rationale-box" style="margin-top:8px;">
-                <strong>Trik Ujian:</strong> Kebalikan dari <code>langkah</code> kiri, kita menempelkan bahu kanan robot ke dinding gedung. Selama dinding kanan masih ada, robot akan terus mengitari menara dan berhenti begitu putaran selesai!
+                <strong>Trik Ujian:</strong> Kebalikan dari <code>langkah</code> kiri, kita menempelkan bahu kanan robot ke dinding gedung. Selama dinding kanan masih ada, robot akan terus mengitari menara dan berhenti begitu putaran 360° selesai!
               </div>
             </div>
           </div>
           <div class="materi-card-actions">
             <button class="btn-materi-load" data-mission-id="inspeksi">
-              ▶️ Muat Misi 2 &amp; Uji di Simulator
+              ▶️ Buka &amp; Jalankan di Simulator Studio
             </button>
           </div>
         </div>
 
-        <!-- Pola 5: Lorong Zig-Zag Slalom Sekat Vertikal -->
+        <!-- Pola 6: Misi 5 - Papan Catur 5x5 -->
         <div class="materi-card">
           <div class="materi-card-header">
-            <h3 class="materi-card-title">🧩 Pola 5: Lorong Zig-Zag Slalom (Sekat Bergantian)</h3>
-            <span class="materi-badge-pill">Pola Slalom</span>
+            <h3 class="materi-card-title">🧩 Pola 6: Pola Papan Catur Beeper 5x5 (Alternating Grid)</h3>
+            <span class="materi-badge-pill">Misi 5 Resmi • 23 Baris</span>
           </div>
           <p class="materi-card-desc">
-            Tembok vertikal menjulur bergantian dari atas dan bawah membentuk rintangan slalom yang harus dilewati tanpa menabrak.
+            Robot harus memungut 13 beeper yang tersusun seperti kotak-kotak papan catur selang-seling di area grid 5&times;5.
           </p>
           <div class="materi-visual-grid">
+            <!-- REAL 2D CANVAS -->
             <div>
-              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🗺️ Peta Grid Visual &amp; Jejak Lintasan</strong>
-              <pre class="materi-ascii-box"><code>  y
-  5 ┌───┬───┬───┬───┬───┐
-    │   │   │   │   │   │
-  4 │   │ ┌─┘   │ ┌─┘   │
-    │   │ │     │ │     │
-  3 │ 🤖│ │     │ │   ⭐│
-    │   │ │     │ │     │
-  2 │ ┌─┘ │   ┌─┘ │     │
-    │ │   │   │   │     │
-  1 └─┴───┴───┴───┴───┴─┘
-    1   2   3   4   5   6   x
-
-Jejak: Robot meliuk naik, turun, naik, turun
-seperti ular menyusuri setiap sekat sampai ke ⭐</code></pre>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🎮 Visualisator Kanvas 2D &amp; Lintasan Nyata</strong>
+              <div class="materi-canvas-wrap">
+                <canvas class="materi-interactive-canvas" data-mission-id="catur" width="560" height="340"></canvas>
+                <div class="materi-canvas-foot">
+                  <div class="materi-playback-bar">
+                    <button class="btn-materi-playback" data-action="play" data-target="catur">▶️ Putar Animasi</button>
+                    <button class="btn-materi-playback" data-action="reset" data-target="catur">↺ Reset</button>
+                    <span class="materi-step-badge" id="stepBadge_catur">Lintasan Lengkap (25 Titik)</span>
+                  </div>
+                  <div class="materi-canvas-legend">
+                    <span class="mleg-item"><span class="mleg-dot start"></span> Start (6,3)</span>
+                    <span class="mleg-item"><span class="mleg-line"></span> Lintasan Gerak &amp; Arah Panah</span>
+                    <span class="mleg-item"><span class="mleg-dot beeper"></span> 13 Beeper Catur</span>
+                    <span class="mleg-item"><span class="mleg-dot finish"></span> Finish (6,3)</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- CODE & LOGIC -->
             <div>
-              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas</strong>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas (Penyapuan Baris Zig-Zag)</strong>
               <pre class="materi-code-box"><code>define turnright:
     do 3:
         turnleft
 
-define langkah:
+define sapu_dan_ambil:
+    if next_to_a_beeper:
+        pickbeeper
+    if front_is_clear:
+        move
+
+# Loop melintasi baris demi baris
+while not_facing_north:
+    sapu_dan_ambil
+
+turnoff</code></pre>
+              <div class="materi-rationale-box" style="margin-top:8px;">
+                <strong>Trik Ujian:</strong> Gunakan fungsi sapu baris berulang-ulang. Di setiap belokan ujung baris, cukup balik arah ke baris di atasnya seperti menyisir sawah.
+              </div>
+            </div>
+          </div>
+          <div class="materi-card-actions">
+            <button class="btn-materi-load" data-mission-id="catur">
+              ▶️ Buka &amp; Jalankan di Simulator Studio
+            </button>
+          </div>
+        </div>
+
+        <!-- Pola 7: Misi 6 - Tiga Pilar & Pemindahan Beeper -->
+        <div class="materi-card">
+          <div class="materi-card-header">
+            <h3 class="materi-card-title">🧩 Pola 7: Tiga Pilar &amp; Pemindahan Beeper</h3>
+            <span class="materi-badge-pill">Misi 6 Resmi • 26 Baris</span>
+          </div>
+          <p class="materi-card-desc">
+            Robot harus melompat mendaki 3 pilar tinggi, mengambil beeper di puncak pilar pertama, dan memindahkannya ke puncak pilar berikutnya.
+          </p>
+          <div class="materi-visual-grid">
+            <!-- REAL 2D CANVAS -->
+            <div>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🎮 Visualisator Kanvas 2D &amp; Lintasan Nyata</strong>
+              <div class="materi-canvas-wrap">
+                <canvas class="materi-interactive-canvas" data-mission-id="tiga_pilar" width="560" height="340"></canvas>
+                <div class="materi-canvas-foot">
+                  <div class="materi-playback-bar">
+                    <button class="btn-materi-playback" data-action="play" data-target="tiga_pilar">▶️ Putar Animasi</button>
+                    <button class="btn-materi-playback" data-action="reset" data-target="tiga_pilar">↺ Reset</button>
+                    <span class="materi-step-badge" id="stepBadge_tiga_pilar">Lintasan Lengkap (32 Titik)</span>
+                  </div>
+                  <div class="materi-canvas-legend">
+                    <span class="mleg-item"><span class="mleg-dot start"></span> Start (3,3)</span>
+                    <span class="mleg-item"><span class="mleg-line"></span> Lintasan Gerak &amp; Arah Panah</span>
+                    <span class="mleg-item"><span class="mleg-dot beeper"></span> Pindah Beeper</span>
+                    <span class="mleg-item"><span class="mleg-dot finish"></span> Finish (11,3)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CODE & LOGIC -->
+            <div>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas (Pola Panjat Pilar)</strong>
+              <pre class="materi-code-box"><code>define panjat_kiri:
+    turnleft
+    while right_is_blocked:
+        move
+
+define turun_kanan:
+    turnright
+    move
+    turnright
+    while front_is_clear:
+        move
+    turnleft</code></pre>
+              <div class="materi-rationale-box" style="margin-top:8px;">
+                <strong>Trik Ujian:</strong> Panjat pilar menggunakan sensor <code>while right_is_blocked: move</code>, saat mencapai puncak (kanan terbuka) ambil beeper dan turun kembali ke lembah!
+              </div>
+            </div>
+          </div>
+          <div class="materi-card-actions">
+            <button class="btn-materi-load" data-mission-id="tiga_pilar">
+              ▶️ Buka &amp; Jalankan di Simulator Studio
+            </button>
+          </div>
+        </div>
+
+        <!-- Pola 8: Misi 3 - Pembersih Gedung & 6 Sampah Beeper -->
+        <div class="materi-card">
+          <div class="materi-card-header">
+            <h3 class="materi-card-title">🧩 Pola 8: Robot Pembersih Gedung &amp; 6 Sampah Beeper</h3>
+            <span class="materi-badge-pill">Misi 3 Resmi • 19 Baris</span>
+          </div>
+          <p class="materi-card-desc">
+            Robot harus membersihkan 6 titik sampah beeper di sekeliling gedung bertingkat dan kembali tepat ke pintu masuk gedung.
+          </p>
+          <div class="materi-visual-grid">
+            <!-- REAL 2D CANVAS -->
+            <div>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🎮 Visualisator Kanvas 2D &amp; Lintasan Nyata</strong>
+              <div class="materi-canvas-wrap">
+                <canvas class="materi-interactive-canvas" data-mission-id="pembersih" width="560" height="340"></canvas>
+                <div class="materi-canvas-foot">
+                  <div class="materi-playback-bar">
+                    <button class="btn-materi-playback" data-action="play" data-target="pembersih">▶️ Putar Animasi</button>
+                    <button class="btn-materi-playback" data-action="reset" data-target="pembersih">↺ Reset</button>
+                    <span class="materi-step-badge" id="stepBadge_pembersih">Lintasan Lengkap (35 Titik)</span>
+                  </div>
+                  <div class="materi-canvas-legend">
+                    <span class="mleg-item"><span class="mleg-dot start"></span> Start (2,3)</span>
+                    <span class="mleg-item"><span class="mleg-line"></span> Lintasan Gerak &amp; Arah Panah</span>
+                    <span class="mleg-item"><span class="mleg-dot beeper"></span> 6 Sampah Beeper</span>
+                    <span class="mleg-item"><span class="mleg-dot finish"></span> Finish (2,3)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CODE & LOGIC -->
+            <div>
+              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas (Penyusuran Tembok Kiri + Sapu Beeper)</strong>
+              <pre class="materi-code-box"><code>define turnright:
+    do 3:
+        turnleft
+
+define langkah_sapu:
+    while next_to_a_beeper:
+        pickbeeper
     turnleft
     while front_is_blocked:
         turnright
     move
 
-while not_next_to_a_beeper:
-    langkah
-
-pickbeeper
-turnoff</code></pre>
-              <div class="materi-rationale-box" style="margin-top:8px;">
-                <strong>Trik Ujian:</strong> Tidak peduli ada 3, 5, atau 100 sekat zigzag, fungsi <code>langkah</code> susur kiri akan otomatis membimbing robot meliuk mengikuti permukaan dinding sampai menemukan beeper target!
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pola 6: Lorong Buntu & Putar Balik 180° Cerdas -->
-        <div class="materi-card">
-          <div class="materi-card-header">
-            <h3 class="materi-card-title">🧩 Pola 6: Lorong Buntu &amp; Putar Balik 180° Cerdas</h3>
-            <span class="materi-badge-pill">U-Turn Cerdas</span>
-          </div>
-          <p class="materi-card-desc">
-            Robot menelusuri koridor sempit yang buntu di ujung. Saat mentok, ia harus putar balik 180° dan kembali ke pintu masuk tanpa crash.
-          </p>
-          <div class="materi-visual-grid">
-            <div>
-              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">🗺️ Peta Grid Visual &amp; Jejak Lintasan</strong>
-              <pre class="materi-ascii-box"><code>  y
-  3 ┌───────────────────────────┐
-  2 │ 🤖 ─────────────► (MENTOK)│
-  1 └───────────────────────────┘
-    1   2   3   4   5   6   7   x
-
-Jejak: Maju terus sampai mentok &rarr;
-Ambil beeper di ujung &rarr; Putar balik 180° &rarr;
-Maju kembali ke mulut lorong &rarr; turnoff</code></pre>
-            </div>
-            <div>
-              <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--color-primary);">💻 Solusi Siswa Cerdas</strong>
-              <pre class="materi-code-box"><code># Maju sampai mentok dinding ujung
-while front_is_clear:
-    while next_to_a_beeper:
-        pickbeeper
-    move
-
-while next_to_a_beeper:
-    pickbeeper
-
-# Putar balik 180° dengan 2x turnleft
-turnleft
-turnleft
-
-# Kembali pulang
-while front_is_clear:
-    move
+while not_facing_north:
+    langkah_sapu
 
 turnoff</code></pre>
               <div class="materi-rationale-box" style="margin-top:8px;">
-                <strong>Trik Ujian:</strong> Jangan gunakan sensor hadap arah (<code>facing_west</code>) yang rumit. Putar balik 180° cukup dengan menulis <code>turnleft</code> 2 kali berturut-turut!
+                <strong>Trik Ujian:</strong> Integrasikan <code>pickbeeper</code> langsung di dalam <code>langkah_sapu</code>. Robot otomatis memungut beeper begitu menginjak petak koin sambil terus melingkari kontur luar gedung.
               </div>
             </div>
+          </div>
+          <div class="materi-card-actions">
+            <button class="btn-materi-load" data-mission-id="pembersih">
+              ▶️ Buka &amp; Jalankan di Simulator Studio
+            </button>
           </div>
         </div>
 
@@ -938,5 +1114,6 @@ turnoff</code></pre>
   <script src="world-builder.js?v=3.0"></script>
   <script src="arsip-soal.js?v=3.0"></script>
   <script src="app.js?v=3.0"></script>
+  <script src="materi-visualizer.js?v=3.1"></script>
 </body>
 </html>
