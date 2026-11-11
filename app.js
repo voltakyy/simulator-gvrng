@@ -123,6 +123,31 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================
+  // MATERI TO SIMULATOR DEEP LINK HANDLER
+  // ==========================================
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-materi-load');
+    if (!btn) return;
+    const mId = btn.getAttribute('data-mission-id');
+    const mission = (window.GVR_MISSIONS || []).find(m => m.id === mId || m.number === parseInt(mId, 10));
+    if (mission) {
+      const simTabBtn = document.querySelector('.nav-tab-btn[data-tab="tabSimulator"]');
+      if (simTabBtn) simTabBtn.click();
+      if (typeof loadMission === 'function') {
+        loadMission(mission);
+      }
+      if (editorTextarea) {
+        editorTextarea.value = mission.solutionCode;
+        updateLineGutter();
+      }
+      if (typeof showToast === 'function') {
+        showToast(`Misi ${mission.number}: ${mission.title} siap diuji!`);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  // ==========================================
   // UNIFIED STUDIO SUBMODE SWITCHER
   // (Uji Kode vs Desain Peta pada SATU Halaman)
   // ==========================================
