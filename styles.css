@@ -2949,3 +2949,25 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .ped-details-body li {
   margin-bottom: 6px;
 }
+
+/* Refined Micro-Interactions & Theme Cohesion */
+.pedagogy-step-card:hover {
+  border-color: rgba(59, 130, 246, 0.35);
+  transition: border-color 0.2s ease;
+}
+
+.ped-pill:active {
+  transform: scale(0.97);
+}
+
+.btn-copy-code:active {
+  transform: scale(0.95);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:target {
+  scroll-margin-top: 80px;
+}
