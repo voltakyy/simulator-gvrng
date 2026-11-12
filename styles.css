@@ -2429,3 +2429,75 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .analogy-lead p:last-child {
   margin-bottom: 0;
 }
+
+.ped-rule-callout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease;
+}
+
+.ped-rule-callout:hover {
+  transform: translateX(4px);
+}
+
+.rule-tag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+}
+
+.rule-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.rule-prio {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.rule-content {
+  flex: 1;
+}
+
+.rule-condition {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.rule-action {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.rule-sensor {
+  font-size: 11.5px;
+  font-family: var(--font-mono, monospace);
+}
+
+.rule-a {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.rule-a .rule-letter { background: #10b981; }
+.rule-a .rule-prio { color: #059669; }
+.rule-a .rule-condition { color: #065f46; }
+.rule-a .rule-action { color: #047857; }

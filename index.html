@@ -156,7 +156,19 @@
               Di dalam algoritma GVRNG, analogi tangan kanan dipecah menjadi <strong>3 Aturan Prioritas</strong> berurutan:
             </p>
 
-            <div id="langkah2RulesContainer"></div>
+            <div id="langkah2RulesContainer">
+            <!-- Aturan A -->
+            <div class="ped-rule-callout rule-a">
+              <div class="rule-tag">
+                <span class="rule-letter">A</span>
+                <span class="rule-prio">Prioritas 1</span>
+              </div>
+              <div class="rule-content">
+                <div class="rule-condition">Jika jalan di sebelah kanan kosong (kanan plong):</div>
+                <div class="rule-action">&rarr; Belok Kanan (turnright), lalu Maju 1 langkah (move).</div>
+                <div class="rule-sensor">Sensor GVRNG: <code>if right_is_clear:</code></div>
+              </div>
+            </div></div>
           </div>
 
         </section>
