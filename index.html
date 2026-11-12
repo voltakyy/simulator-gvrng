@@ -141,6 +141,18 @@
                 <div class="rule-action">&rarr; Jalan Lurus ke depan (move). Robot tetap menyusuri tembok samping!</div>
                 <div class="rule-sensor">Sensor GVRNG: <code>elif front_is_clear:</code></div>
               </div>
+            
+            <!-- Aturan C -->
+            <div class="ped-rule-callout rule-c">
+              <div class="rule-tag">
+                <span class="rule-letter">C</span>
+                <span class="rule-prio">Prioritas 3</span>
+              </div>
+              <div class="rule-content">
+                <div class="rule-condition">Jika kanan buntu DAN jalan lurus juga buntu (sudut tembok buntu):</div>
+                <div class="rule-action">&rarr; Belok Kiri (turnleft) untuk memutar haluan mencari jalan keluar.</div>
+                <div class="rule-sensor">Sensor GVRNG: <code>else: turnleft</code></div>
+              </div>
             </div>
             </div>
           </div>

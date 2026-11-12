@@ -2510,3 +2510,12 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .rule-b .rule-prio { color: #2563eb; }
 .rule-b .rule-condition { color: #1e40af; }
 .rule-b .rule-action { color: #1d4ed8; }
+
+.rule-c {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+.rule-c .rule-letter { background: #f59e0b; }
+.rule-c .rule-prio { color: #d97706; }
+.rule-c .rule-condition { color: #92400e; }
+.rule-c .rule-action { color: #b45309; }
