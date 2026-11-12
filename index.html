@@ -368,6 +368,62 @@
             </div>
           </div>
 
+        
+          <!-- LANGKAH 4 -->
+          <div class="pedagogy-step-card" id="langkah4">
+            <div class="ped-step-header">
+              <span class="ped-step-badge" style="background:#e11d48;">Langkah 4</span>
+              <h3 class="ped-step-title">⚖️ Jebakan Ujian: Perbedaan <code>if</code> vs <code>while</code></h3>
+            </div>
+            <p class="ped-step-desc">
+              Banyak mahasiswa kehilangan poin ujian gara-gara salah memilih antara <code>if</code> dan <code>while</code>. Mari kita uji pada studi kasus nyata: <strong>Mengambil Beeper di Petak</strong>.
+            </p>
+
+            <div class="ped-compare-grid">
+              <!-- Card IF -->
+              <div class="ped-compare-card if-card">
+                <div class="compare-header">
+                  <span class="cmp-pill cmp-if">Kondisional (if)</span>
+                  <h4>if next_to_a_beeper:</h4>
+                </div>
+                <div class="compare-body">
+                  <p class="cmp-punchline">&ldquo;Cek sekali saja, lalu lewat.&rdquo;</p>
+                  <pre class="cmp-code"><code>if next_to_a_beeper:
+    pickbeeper</code></pre>
+                  <div class="cmp-explanation">
+                    <strong>Karakteristik:</strong>
+                    <ul>
+                      <li>Robot hanya mengecek <strong>1 kali</strong> saat menginjak petak tersebut.</li>
+                      <li>Jika ada 1 beeper, beeper terambil.</li>
+                      <li><strong class="text-danger">Jebakan Fatal:</strong> Jika di petak tersebut ada tumpukan <strong>5 beeper</strong>, robot hanya mengambil 1 beeper lalu langsung jalan! 4 beeper tertinggal dan misi otomatis <strong>GAGAL</strong>.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card WHILE -->
+              <div class="ped-compare-card while-card">
+                <div class="compare-header">
+                  <span class="cmp-pill cmp-while">Perulangan (while)</span>
+                  <h4>while next_to_a_beeper:</h4>
+                </div>
+                <div class="compare-body">
+                  <p class="cmp-punchline">&ldquo;Sedot terus sampai benar-benar bersih!&rdquo;</p>
+                  <pre class="cmp-code"><code>while next_to_a_beeper:
+    pickbeeper</code></pre>
+                  <div class="cmp-explanation">
+                    <strong>Karakteristik:</strong>
+                    <ul>
+                      <li>Robot akan terus-menerus memungut beeper <strong>SELAMA</strong> koin di petak tersebut masih ada.</li>
+                      <li>Berapapun jumlah koinnya (1, 5, atau 55 beeper seperti di Misi 4 Menara), petak dijamin <strong>bersih 0 sisa</strong>!</li>
+                      <li><strong class="text-success">Rekomendasi Praktikum:</strong> Gunakan <code>while</code> untuk tugas pembersihan beeper agar aman dari tumpukan tersembunyi!</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </section>
 
       <!-- Main Simulator & Builder Card -->
