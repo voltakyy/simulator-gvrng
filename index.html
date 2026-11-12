@@ -266,7 +266,25 @@
                   </g>
 
                   <!-- Dynamic Elements Placeholder -->
-                  <g id="svgDynamicPath"></g>
+                  
+                  <!-- Robot Trajectory Dashed Trail -->
+                  <!-- (1,1) -> (2,1) -> (2,2) -> (2,3) -> turn -> (3,3) -> (4,3) -> (4,4) -->
+                  <path d="M 90 295 L 170 295 L 170 225 L 170 155 L 250 155 L 330 155 L 330 85" 
+                        fill="none" stroke="#60a5fa" stroke-width="3.5" stroke-dasharray="6,4" stroke-linecap="round" stroke-linejoin="round" />
+
+                  <!-- Start Pin at (1,1) [Pixel: 90, 295] -->
+                  <circle cx="90" cy="295" r="9" fill="#10b981" stroke="#ffffff" stroke-width="2" />
+                  <text x="90" y="299" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" font-family="sans-serif">S</text>
+
+                  <!-- Robot Triangle Sprite at Current Position (2, 2) [Pixel: 170, 225] facing NORTH -->
+                  <g transform="translate(170, 225) rotate(-90)">
+                    <path d="M 12 0 L -8 -9 L -4 0 L -8 9 Z" fill="#334155" stroke="#1e293b" stroke-width="1.8" />
+                    <circle cx="3" cy="0" r="2.2" fill="#ffffff" />
+                  </g>
+
+                  <!-- Turn Badges Placeholder -->
+                  <g id="svgTurnBadges"></g>
+
                 </svg>
               </div>
               <div id="pedArenaRationalePlaceholder"></div>
