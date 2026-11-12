@@ -196,6 +196,83 @@
             </div></div>
           </div>
 
+        
+          <!-- LANGKAH 2.5: ARENA VISUAL GVRNG -->
+          <div class="pedagogy-step-card" id="langkah25">
+            <div class="ped-step-header">
+              <span class="ped-step-badge" style="background:#6366f1;">Langkah 2.5</span>
+              <h3 class="ped-step-title">🎮 Demonstrasi Visual Lintasan Arena GVRNG (Grid 5&times;5)</h3>
+            </div>
+            <p class="ped-step-desc">
+              Berikut adalah representasi arena 2D GVRNG asli (dengan titik koordinat, dinding batas merah, dan koin beeper). Amati bagaimana robot menerapkan <strong>Aturan Tangan Kanan</strong> saat mengitari dinding rintangan menuju target:
+            </p>
+
+            <div class="ped-arena-container">
+              <div class="ped-arena-svg-wrap">
+                <svg id="svgGvrngArena" viewBox="0 0 520 420" width="100%" height="auto" class="ped-arena-svg" aria-label="Visualisasi Arena GVRNG 5x5">
+                  <defs>
+                    <marker id="arrowRight" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#facc15" stroke="#ca8a04" stroke-width="1.2" />
+                    </marker>
+                  </defs>
+
+                  <!-- Canvas Background -->
+                  <rect x="0" y="0" width="520" height="420" fill="#ffffff" rx="10" />
+
+                  <!-- Grid Coordinate Labels -->
+                  <!-- X Axis (Avenues 1..5) -->
+                  <text x="90" y="380" class="svg-axis-label">1</text>
+                  <text x="170" y="380" class="svg-axis-label">2</text>
+                  <text x="250" y="380" class="svg-axis-label">3</text>
+                  <text x="330" y="380" class="svg-axis-label">4</text>
+                  <text x="410" y="380" class="svg-axis-label">5</text>
+                  
+                  <!-- Y Axis (Streets 1..5) -->
+                  <text x="35" y="335" class="svg-axis-label">1</text>
+                  <text x="35" y="265" class="svg-axis-label">2</text>
+                  <text x="35" y="195" class="svg-axis-label">3</text>
+                  <text x="35" y="125" class="svg-axis-label">4</text>
+                  <text x="35" y="55" class="svg-axis-label">5</text>
+
+                  <!-- Grid Intersection Dots (6x6 dots for 5x5 cells) -->
+                  <!-- Row 1 -->
+                  <circle cx="50" cy="330" r="2.5" class="svg-dot" /><circle cx="130" cy="330" r="2.5" class="svg-dot" /><circle cx="210" cy="330" r="2.5" class="svg-dot" /><circle cx="290" cy="330" r="2.5" class="svg-dot" /><circle cx="370" cy="330" r="2.5" class="svg-dot" /><circle cx="450" cy="330" r="2.5" class="svg-dot" />
+                  <!-- Row 2 -->
+                  <circle cx="50" cy="260" r="2.5" class="svg-dot" /><circle cx="130" cy="260" r="2.5" class="svg-dot" /><circle cx="210" cy="260" r="2.5" class="svg-dot" /><circle cx="290" cy="260" r="2.5" class="svg-dot" /><circle cx="370" cy="260" r="2.5" class="svg-dot" /><circle cx="450" cy="260" r="2.5" class="svg-dot" />
+                  <!-- Row 3 -->
+                  <circle cx="50" cy="190" r="2.5" class="svg-dot" /><circle cx="130" cy="190" r="2.5" class="svg-dot" /><circle cx="210" cy="190" r="2.5" class="svg-dot" /><circle cx="290" cy="190" r="2.5" class="svg-dot" /><circle cx="370" cy="190" r="2.5" class="svg-dot" /><circle cx="450" cy="190" r="2.5" class="svg-dot" />
+                  <!-- Row 4 -->
+                  <circle cx="50" cy="120" r="2.5" class="svg-dot" /><circle cx="130" cy="120" r="2.5" class="svg-dot" /><circle cx="210" cy="120" r="2.5" class="svg-dot" /><circle cx="290" cy="120" r="2.5" class="svg-dot" /><circle cx="370" cy="120" r="2.5" class="svg-dot" /><circle cx="450" cy="120" r="2.5" class="svg-dot" />
+                  <!-- Row 5 -->
+                  <circle cx="50" cy="50" r="2.5" class="svg-dot" /><circle cx="130" cy="50" r="2.5" class="svg-dot" /><circle cx="210" cy="50" r="2.5" class="svg-dot" /><circle cx="290" cy="50" r="2.5" class="svg-dot" /><circle cx="370" cy="50" r="2.5" class="svg-dot" /><circle cx="450" cy="50" r="2.5" class="svg-dot" />
+
+                  <!-- Boundary Outer Walls (Red GvRng Walls) -->
+                  <!-- South Boundary -->
+                  <line x1="50" y1="330" x2="450" y2="330" class="svg-wall-red" />
+                  <!-- West Boundary -->
+                  <line x1="50" y1="330" x2="50" y2="50" class="svg-wall-red" />
+
+                  <!-- Obstacle Walls (L-Shaped Obstacle in Center) -->
+                  <!-- Vertical wall between cell (2,2) and (3,2) -->
+                  <line x1="210" y1="260" x2="210" y2="120" class="svg-wall-red" />
+                  <!-- Horizontal wall between street 3 and 4 at col 3 -->
+                  <line x1="210" y1="120" x2="370" y2="120" class="svg-wall-red" />
+
+                  <!-- Target Beeper at (4, 4) -->
+                  <g transform="translate(330, 85)">
+                    <circle cx="0" cy="0" r="14" fill="#0284c7" stroke="#ffffff" stroke-width="2" />
+                    <circle cx="0" cy="0" r="15" fill="none" stroke="#0369a1" stroke-width="1" />
+                    <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold" font-family="monospace">1</text>
+                  </g>
+
+                  <!-- Dynamic Elements Placeholder -->
+                  <g id="svgDynamicPath"></g>
+                </svg>
+              </div>
+              <div id="pedArenaRationalePlaceholder"></div>
+            </div>
+          </div>
+
         </section>
 
       <!-- Main Simulator & Builder Card -->

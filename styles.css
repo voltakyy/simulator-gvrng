@@ -2519,3 +2519,35 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .rule-c .rule-prio { color: #d97706; }
 .rule-c .rule-condition { color: #92400e; }
 .rule-c .rule-action { color: #b45309; }
+
+.ped-arena-container {
+  background: var(--color-bg-alt, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.ped-arena-svg-wrap {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #cbd5e1;
+}
+
+.svg-axis-label {
+  fill: #64748b;
+  font-size: 13px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.svg-dot {
+  fill: #94a3b8;
+}
+
+.svg-wall-red {
+  stroke: #ef4444;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+}
