@@ -283,11 +283,38 @@
                   </g>
 
                   <!-- Turn Badges Placeholder -->
-                  <g id="svgTurnBadges"></g>
+                  
+                  <!-- Turn Badge 1: [-> Belok Kanan] at (2,3) [170, 155] -->
+                  <g transform="translate(170, 155)">
+                    <!-- Arrow right -->
+                    <path d="M -5 0 L 15 0" stroke="#facc15" stroke-width="3.5" marker-end="url(#arrowRight)" />
+                    <!-- Label pill -->
+                    <rect x="22" y="-12" width="138" height="24" rx="5" fill="#0f172a" fill-opacity="0.88" />
+                    <text x="91" y="4" text-anchor="middle" fill="#fde047" font-size="10" font-weight="bold" font-family="sans-serif">[&rarr; Belok Kanan (kananmas)]</text>
+                  </g>
+
+                  <!-- Turn Badge 2: [^ Maju Lurus] at (4,3) [330, 155] -->
+                  <g transform="translate(330, 155)">
+                    <rect x="15" y="-12" width="130" height="24" rx="5" fill="#0f172a" fill-opacity="0.88" />
+                    <text x="80" y="4" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="bold" font-family="sans-serif">[^ Belok Kiri (turnleft)]</text>
+                  </g>
+
 
                 </svg>
               </div>
-              <div id="pedArenaRationalePlaceholder"></div>
+              
+              <div class="ped-arena-rationale">
+                <div class="rationale-header">
+                  <span class="rat-tag">🔍 Analisis Alur Lintasan Visual</span>
+                  <strong>Perhatikan bagaimana robot selalu mengutamakan jalur di sebelah kanannya:</strong>
+                </div>
+                <ul class="rat-list">
+                  <li><strong>Titik Start S di (1,1):</strong> Robot menghadap Timur. Karena dinding di sebelah kanannya (South) tertutup dan depan terbuka, ia maju lurus ke (2,1).</li>
+                  <li><strong>Di Petak (2,3):</strong> Dinding di sebelah kanannya berakhir (kanan terbuka plong!). Sesuai <strong>Aturan A</strong>, robot langsung membelokkan haluan ke kanan <code>kananmas</code> lalu melangkah.</li>
+                  <li><strong>Di Petak (4,3):</strong> Di sebelah kanan dan depannya terhalang sudut dinding buntu. Sesuai <strong>Aturan C</strong>, robot berputar ke kiri <code>turnleft</code> hingga menemukan jalur terbuka menuju beeper di (4,4)!</li>
+                </ul>
+              </div>
+
             </div>
           </div>
 
