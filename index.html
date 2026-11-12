@@ -96,410 +96,7 @@
         <div class="mission-dock-carousel" id="missionDockCarousel">
           <!-- Populated dynamically by app.js from GVR_MISSIONS -->
         </div>
-      
-          <!-- LANGKAH 1 -->
-          <div class="pedagogy-step-card" id="langkah1">
-            <div class="ped-step-header">
-              <span class="ped-step-badge">Langkah 1</span>
-              <h3 class="ped-step-title">👁️ Analisis Visual: Baca Map-nya Terlebih Dahulu!</h3>
-            </div>
-            <p class="ped-step-desc">
-              Kesalahan nomor satu pemula adalah langsung buru-buru mengetik kode (seperti <code>move</code> atau <code>turnleft</code>) tanpa membaca peta. Ingat: <strong>Otak manusia harus menyelesaikan labirin secara visual terlebih dahulu, baru kemudian robot menerjemahkannya ke baris perintah.</strong>
-            </p>
-
-            <div class="ped-audit-grid">
-              <div class="ped-audit-item">
-                <div class="audit-icon">📍</div>
-                <div class="audit-body">
-                  <h4>1. Cek Posisi Awal &amp; Arah Hadap</h4>
-                  <p>Catat koordinat <strong>(X, Y)</strong> awal robot dan ke mana hidungnya menghadap (<strong>Utara, Timur, Selatan, atau Barat</strong>). Arah hadap awal menentukan apakah robot harus langsung melangkah atau memutar badan dulu.</p>
-                </div>
-              </div>
-              <div class="ped-audit-item">
-                <div class="audit-icon">🏁</div>
-                <div class="audit-body">
-                  <h4>2. Target &amp; Kondisi Berhenti</h4>
-                  <p>Apa misi akhirnya? Apakah memungut seluruh beeper, keluar pintu lorong, atau mengitari gedung? Bagaimana robot tahu kapan harus <code>turnoff</code> (misal: saat menyentuh beeper atau saat kedua sisi terbuka)?</p>
-                </div>
-              </div>
-              <div class="ped-audit-item">
-                <div class="audit-icon">🧱</div>
-                <div class="audit-body">
-                  <h4>3. Cek Rintangan &amp; Tembok</h4>
-                  <p>Di mana saja tembok buntu berada? Di mana celah jalan yang terbuka? Jangan menghitung jumlah petak manual jika dindingnya bisa disusuri dengan sensor logika otomatis!</p>
-                </div>
-              </div>
-            
-            <!-- Aturan B -->
-            <div class="ped-rule-callout rule-b">
-              <div class="rule-tag">
-                <span class="rule-letter">B</span>
-                <span class="rule-prio">Prioritas 2</span>
-              </div>
-              <div class="rule-content">
-                <div class="rule-condition">Jika kanan buntu (tertutup tembok), tapi jalan lurus kosong:</div>
-                <div class="rule-action">&rarr; Jalan Lurus ke depan (move). Robot tetap menyusuri tembok samping!</div>
-                <div class="rule-sensor">Sensor GVRNG: <code>elif front_is_clear:</code></div>
-              </div>
-            
-            <!-- Aturan C -->
-            <div class="ped-rule-callout rule-c">
-              <div class="rule-tag">
-                <span class="rule-letter">C</span>
-                <span class="rule-prio">Prioritas 3</span>
-              </div>
-              <div class="rule-content">
-                <div class="rule-condition">Jika kanan buntu DAN jalan lurus juga buntu (sudut tembok buntu):</div>
-                <div class="rule-action">&rarr; Belok Kiri (turnleft) untuk memutar haluan mencari jalan keluar.</div>
-                <div class="rule-sensor">Sensor GVRNG: <code>else: turnleft</code></div>
-              </div>
-            </div>
-            </div>
-          </div>
-
-        
-          <!-- LANGKAH 2 -->
-          <div class="pedagogy-step-card" id="langkah2">
-            <div class="ped-step-header">
-              <span class="ped-step-badge" style="background:#10b981;">Langkah 2</span>
-              <h3 class="ped-step-title">✋ Analogi Logika &ldquo;Tangan Kanan&rdquo; (Right-Hand Rule)</h3>
-            </div>
-            
-            <div class="ped-analogy-box">
-              <div class="analogy-lead">
-                <span class="analogy-badge">💡 Analogi Kehidupan Nyata</span>
-                <p>
-                  <strong>&ldquo;Bayangkan kamu tersesat di dalam labirin raksasa dengan mata tertutup rapat. Bagaimana cara pasti agar bisa keluar tanpa berputar-putar selamanya?&rdquo;</strong>
-                </p>
-                <p>
-                  Jawabannya adalah: <strong>Raba dan tempelkan tangan kananmu ke dinding, lalu berjalanlah terus tanpa pernah melepaskan tangan kanan dari dinding tersebut!</strong> Prinsip sederhana ini dijamin secara matematis akan menavigasi setiap tikungan, lorong bercabang, maupun jalan buntu.
-                </p>
-              </div>
-            </div>
-
-            <p style="margin: 18px 0 12px 0; font-size: 13.5px; font-weight: 600; color: var(--color-text-main, #0f172a);">
-              Di dalam algoritma GVRNG, analogi tangan kanan dipecah menjadi <strong>3 Aturan Prioritas</strong> berurutan:
-            </p>
-
-            <div id="langkah2RulesContainer">
-            <!-- Aturan A -->
-            <div class="ped-rule-callout rule-a">
-              <div class="rule-tag">
-                <span class="rule-letter">A</span>
-                <span class="rule-prio">Prioritas 1</span>
-              </div>
-              <div class="rule-content">
-                <div class="rule-condition">Jika jalan di sebelah kanan kosong (kanan plong):</div>
-                <div class="rule-action">&rarr; Belok Kanan (turnright), lalu Maju 1 langkah (move).</div>
-                <div class="rule-sensor">Sensor GVRNG: <code>if right_is_clear:</code></div>
-              </div>
-            </div></div>
-          </div>
-
-        
-          <!-- LANGKAH 2.5: ARENA VISUAL GVRNG -->
-          <div class="pedagogy-step-card" id="langkah25">
-            <div class="ped-step-header">
-              <span class="ped-step-badge" style="background:#6366f1;">Langkah 2.5</span>
-              <h3 class="ped-step-title">🎮 Demonstrasi Visual Lintasan Arena GVRNG (Grid 5&times;5)</h3>
-            </div>
-            <p class="ped-step-desc">
-              Berikut adalah representasi arena 2D GVRNG asli (dengan titik koordinat, dinding batas merah, dan koin beeper). Amati bagaimana robot menerapkan <strong>Aturan Tangan Kanan</strong> saat mengitari dinding rintangan menuju target:
-            </p>
-
-            <div class="ped-arena-container">
-              <div class="ped-arena-svg-wrap">
-                <svg id="svgGvrngArena" viewBox="0 0 520 420" width="100%" height="auto" class="ped-arena-svg" aria-label="Visualisasi Arena GVRNG 5x5">
-                  <defs>
-                    <marker id="arrowRight" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#facc15" stroke="#ca8a04" stroke-width="1.2" />
-                    </marker>
-                  </defs>
-
-                  <!-- Canvas Background -->
-                  <rect x="0" y="0" width="520" height="420" fill="#ffffff" rx="10" />
-
-                  <!-- Grid Coordinate Labels -->
-                  <!-- X Axis (Avenues 1..5) -->
-                  <text x="90" y="380" class="svg-axis-label">1</text>
-                  <text x="170" y="380" class="svg-axis-label">2</text>
-                  <text x="250" y="380" class="svg-axis-label">3</text>
-                  <text x="330" y="380" class="svg-axis-label">4</text>
-                  <text x="410" y="380" class="svg-axis-label">5</text>
-                  
-                  <!-- Y Axis (Streets 1..5) -->
-                  <text x="35" y="335" class="svg-axis-label">1</text>
-                  <text x="35" y="265" class="svg-axis-label">2</text>
-                  <text x="35" y="195" class="svg-axis-label">3</text>
-                  <text x="35" y="125" class="svg-axis-label">4</text>
-                  <text x="35" y="55" class="svg-axis-label">5</text>
-
-                  <!-- Grid Intersection Dots (6x6 dots for 5x5 cells) -->
-                  <!-- Row 1 -->
-                  <circle cx="50" cy="330" r="2.5" class="svg-dot" /><circle cx="130" cy="330" r="2.5" class="svg-dot" /><circle cx="210" cy="330" r="2.5" class="svg-dot" /><circle cx="290" cy="330" r="2.5" class="svg-dot" /><circle cx="370" cy="330" r="2.5" class="svg-dot" /><circle cx="450" cy="330" r="2.5" class="svg-dot" />
-                  <!-- Row 2 -->
-                  <circle cx="50" cy="260" r="2.5" class="svg-dot" /><circle cx="130" cy="260" r="2.5" class="svg-dot" /><circle cx="210" cy="260" r="2.5" class="svg-dot" /><circle cx="290" cy="260" r="2.5" class="svg-dot" /><circle cx="370" cy="260" r="2.5" class="svg-dot" /><circle cx="450" cy="260" r="2.5" class="svg-dot" />
-                  <!-- Row 3 -->
-                  <circle cx="50" cy="190" r="2.5" class="svg-dot" /><circle cx="130" cy="190" r="2.5" class="svg-dot" /><circle cx="210" cy="190" r="2.5" class="svg-dot" /><circle cx="290" cy="190" r="2.5" class="svg-dot" /><circle cx="370" cy="190" r="2.5" class="svg-dot" /><circle cx="450" cy="190" r="2.5" class="svg-dot" />
-                  <!-- Row 4 -->
-                  <circle cx="50" cy="120" r="2.5" class="svg-dot" /><circle cx="130" cy="120" r="2.5" class="svg-dot" /><circle cx="210" cy="120" r="2.5" class="svg-dot" /><circle cx="290" cy="120" r="2.5" class="svg-dot" /><circle cx="370" cy="120" r="2.5" class="svg-dot" /><circle cx="450" cy="120" r="2.5" class="svg-dot" />
-                  <!-- Row 5 -->
-                  <circle cx="50" cy="50" r="2.5" class="svg-dot" /><circle cx="130" cy="50" r="2.5" class="svg-dot" /><circle cx="210" cy="50" r="2.5" class="svg-dot" /><circle cx="290" cy="50" r="2.5" class="svg-dot" /><circle cx="370" cy="50" r="2.5" class="svg-dot" /><circle cx="450" cy="50" r="2.5" class="svg-dot" />
-
-                  <!-- Boundary Outer Walls (Red GvRng Walls) -->
-                  <!-- South Boundary -->
-                  <line x1="50" y1="330" x2="450" y2="330" class="svg-wall-red" />
-                  <!-- West Boundary -->
-                  <line x1="50" y1="330" x2="50" y2="50" class="svg-wall-red" />
-
-                  <!-- Obstacle Walls (L-Shaped Obstacle in Center) -->
-                  <!-- Vertical wall between cell (2,2) and (3,2) -->
-                  <line x1="210" y1="260" x2="210" y2="120" class="svg-wall-red" />
-                  <!-- Horizontal wall between street 3 and 4 at col 3 -->
-                  <line x1="210" y1="120" x2="370" y2="120" class="svg-wall-red" />
-
-                  <!-- Target Beeper at (4, 4) -->
-                  <g transform="translate(330, 85)">
-                    <circle cx="0" cy="0" r="14" fill="#0284c7" stroke="#ffffff" stroke-width="2" />
-                    <circle cx="0" cy="0" r="15" fill="none" stroke="#0369a1" stroke-width="1" />
-                    <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold" font-family="monospace">1</text>
-                  </g>
-
-                  <!-- Dynamic Elements Placeholder -->
-                  
-                  <!-- Robot Trajectory Dashed Trail -->
-                  <!-- (1,1) -> (2,1) -> (2,2) -> (2,3) -> turn -> (3,3) -> (4,3) -> (4,4) -->
-                  <path d="M 90 295 L 170 295 L 170 225 L 170 155 L 250 155 L 330 155 L 330 85" 
-                        fill="none" stroke="#60a5fa" stroke-width="3.5" stroke-dasharray="6,4" stroke-linecap="round" stroke-linejoin="round" />
-
-                  <!-- Start Pin at (1,1) [Pixel: 90, 295] -->
-                  <circle cx="90" cy="295" r="9" fill="#10b981" stroke="#ffffff" stroke-width="2" />
-                  <text x="90" y="299" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" font-family="sans-serif">S</text>
-
-                  <!-- Robot Triangle Sprite at Current Position (2, 2) [Pixel: 170, 225] facing NORTH -->
-                  <g transform="translate(170, 225) rotate(-90)">
-                    <path d="M 12 0 L -8 -9 L -4 0 L -8 9 Z" fill="#334155" stroke="#1e293b" stroke-width="1.8" />
-                    <circle cx="3" cy="0" r="2.2" fill="#ffffff" />
-                  </g>
-
-                  <!-- Turn Badges Placeholder -->
-                  
-                  <!-- Turn Badge 1: [-> Belok Kanan] at (2,3) [170, 155] -->
-                  <g transform="translate(170, 155)">
-                    <!-- Arrow right -->
-                    <path d="M -5 0 L 15 0" stroke="#facc15" stroke-width="3.5" marker-end="url(#arrowRight)" />
-                    <!-- Label pill -->
-                    <rect x="22" y="-12" width="138" height="24" rx="5" fill="#0f172a" fill-opacity="0.88" />
-                    <text x="91" y="4" text-anchor="middle" fill="#fde047" font-size="10" font-weight="bold" font-family="sans-serif">[&rarr; Belok Kanan (kananmas)]</text>
-                  </g>
-
-                  <!-- Turn Badge 2: [^ Maju Lurus] at (4,3) [330, 155] -->
-                  <g transform="translate(330, 155)">
-                    <rect x="15" y="-12" width="130" height="24" rx="5" fill="#0f172a" fill-opacity="0.88" />
-                    <text x="80" y="4" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="bold" font-family="sans-serif">[^ Belok Kiri (turnleft)]</text>
-                  </g>
-
-
-                </svg>
-              </div>
-              
-              <div class="ped-arena-rationale">
-                <div class="rationale-header">
-                  <span class="rat-tag">🔍 Analisis Alur Lintasan Visual</span>
-                  <strong>Perhatikan bagaimana robot selalu mengutamakan jalur di sebelah kanannya:</strong>
-                </div>
-                <ul class="rat-list">
-                  <li><strong>Titik Start S di (1,1):</strong> Robot menghadap Timur. Karena dinding di sebelah kanannya (South) tertutup dan depan terbuka, ia maju lurus ke (2,1).</li>
-                  <li><strong>Di Petak (2,3):</strong> Dinding di sebelah kanannya berakhir (kanan terbuka plong!). Sesuai <strong>Aturan A</strong>, robot langsung membelokkan haluan ke kanan <code>kananmas</code> lalu melangkah.</li>
-                  <li><strong>Di Petak (4,3):</strong> Di sebelah kanan dan depannya terhalang sudut dinding buntu. Sesuai <strong>Aturan C</strong>, robot berputar ke kiri <code>turnleft</code> hingga menemukan jalur terbuka menuju beeper di (4,4)!</li>
-                </ul>
-              </div>
-
-            </div>
-          </div>
-
-        
-          <!-- LANGKAH 3 -->
-          <div class="pedagogy-step-card" id="langkah3">
-            <div class="ped-step-header">
-              <span class="ped-step-badge" style="background:#8b5cf6;">Langkah 3</span>
-              <h3 class="ped-step-title">💻 Menerjemahkan Logika ke Kode GVRNG (if - elif - else)</h3>
-            </div>
-            <p class="ped-step-desc">
-              Setelah alur logika Aturan A, B, dan C dipahami secara visual, menerjemahkannya ke dalam sintaksis Python/GVRNG menjadi sangat mudah! Kita menggunakan struktur percabangan bertingkat <code>if - elif - else</code>:
-            </p>
-
-            <div class="ped-code-wrapper">
-              <div class="ped-code-header">
-                <span class="ped-code-lang">Python (GVRNG) • 12 Baris</span>
-                <button class="btn-copy-code" data-code-id="codeLangkah3" title="Salin Kode">
-                  <span class="copy-icon">📋</span> Salin Kode
-                </button>
-              </div>
-              <div class="ped-code-container">
-                <div class="ped-line-numbers" aria-hidden="true">
-                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-                  <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
-                  <span>11</span><span>12</span><span>13</span>
-                </div>
-                <pre class="ped-code-pre"><code id="codeLangkah3"><span class="c-comment"># Asumsi: kita sudah punya fungsi 'kananmas' (do 3: turnleft)</span>
-<span class="c-keyword">define</span> <span class="c-func">kananmas</span>:
-    <span class="c-keyword">do</span> <span class="c-num">3</span>:
-        <span class="c-builtin">turnleft</span>
-
-<span class="c-comment"># Penerapan Aturan A, B, dan C:</span>
-<span class="c-keyword">if</span> <span class="c-sensor">right_is_clear</span>:       <span class="c-comment"># Aturan A: Cek Kanan dulu!</span>
-    <span class="c-func">kananmas</span>
-    <span class="c-builtin">move</span>
-<span class="c-keyword">elif</span> <span class="c-sensor">front_is_clear</span>:     <span class="c-comment"># Aturan B: Jika kanan buntu, cek depan</span>
-    <span class="c-builtin">move</span>
-<span class="c-keyword">else</span>:                    <span class="c-comment"># Aturan C: Kanan &amp; depan buntu, putar kiri!</span>
-    <span class="c-builtin">turnleft</span></code></pre>
-              </div>
-            </div>
-
-            <div class="ped-explanation-callout">
-              <strong>📖 Penjelasan Baris demi Baris:</strong>
-              <ul>
-                <li><strong>Baris 7-9 (Aturan A):</strong> Robot selalu memprioritaskan melihat ke bahu kanannya. Jika kanan terbuka, ia belok kanan <code>kananmas</code> lalu maju 1 langkah.</li>
-                <li><strong>Baris 10-11 (Aturan B):</strong> Jika kanan buntu tapi depannya plong, ia melangkah maju lurus <code>move</code>. Bahu kanannya tetap menyusuri dinding.</li>
-                <li><strong>Baris 12-13 (Aturan C):</strong> Jika kanan dan depan sama-sama tertutup tembok buntu, satu-satunya opsi selamat adalah belok kiri <code>turnleft</code>!</li>
-              </ul>
-            </div>
-          </div>
-
-        
-          <!-- LANGKAH 4 -->
-          <div class="pedagogy-step-card" id="langkah4">
-            <div class="ped-step-header">
-              <span class="ped-step-badge" style="background:#e11d48;">Langkah 4</span>
-              <h3 class="ped-step-title">⚖️ Jebakan Ujian: Perbedaan <code>if</code> vs <code>while</code></h3>
-            </div>
-            <p class="ped-step-desc">
-              Banyak mahasiswa kehilangan poin ujian gara-gara salah memilih antara <code>if</code> dan <code>while</code>. Mari kita uji pada studi kasus nyata: <strong>Mengambil Beeper di Petak</strong>.
-            </p>
-
-            <div class="ped-compare-grid">
-              <!-- Card IF -->
-              <div class="ped-compare-card if-card">
-                <div class="compare-header">
-                  <span class="cmp-pill cmp-if">Kondisional (if)</span>
-                  <h4>if next_to_a_beeper:</h4>
-                </div>
-                <div class="compare-body">
-                  <p class="cmp-punchline">&ldquo;Cek sekali saja, lalu lewat.&rdquo;</p>
-                  <pre class="cmp-code"><code>if next_to_a_beeper:
-    pickbeeper</code></pre>
-                  <div class="cmp-explanation">
-                    <strong>Karakteristik:</strong>
-                    <ul>
-                      <li>Robot hanya mengecek <strong>1 kali</strong> saat menginjak petak tersebut.</li>
-                      <li>Jika ada 1 beeper, beeper terambil.</li>
-                      <li><strong class="text-danger">Jebakan Fatal:</strong> Jika di petak tersebut ada tumpukan <strong>5 beeper</strong>, robot hanya mengambil 1 beeper lalu langsung jalan! 4 beeper tertinggal dan misi otomatis <strong>GAGAL</strong>.</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Card WHILE -->
-              <div class="ped-compare-card while-card">
-                <div class="compare-header">
-                  <span class="cmp-pill cmp-while">Perulangan (while)</span>
-                  <h4>while next_to_a_beeper:</h4>
-                </div>
-                <div class="compare-body">
-                  <p class="cmp-punchline">&ldquo;Sedot terus sampai benar-benar bersih!&rdquo;</p>
-                  <pre class="cmp-code"><code>while next_to_a_beeper:
-    pickbeeper</code></pre>
-                  <div class="cmp-explanation">
-                    <strong>Karakteristik:</strong>
-                    <ul>
-                      <li>Robot akan terus-menerus memungut beeper <strong>SELAMA</strong> koin di petak tersebut masih ada.</li>
-                      <li>Berapapun jumlah koinnya (1, 5, atau 55 beeper seperti di Misi 4 Menara), petak dijamin <strong>bersih 0 sisa</strong>!</li>
-                      <li><strong class="text-success">Rekomendasi Praktikum:</strong> Gunakan <code>while</code> untuk tugas pembersihan beeper agar aman dari tumpukan tersembunyi!</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        
-          <!-- LANGKAH 5 -->
-          <div class="pedagogy-step-card" id="langkah5">
-            <div class="ped-step-header">
-              <span class="ped-step-badge" style="background:#0284c7;">Langkah 5</span>
-              <h3 class="ped-step-title">🧪 Seni &ldquo;Trial &amp; Error&rdquo;: Jangan Takut Salah!</h3>
-            </div>
-            <p class="ped-step-desc">
-              Pesan terpenting untuk setiap praktikan: <strong>Program GVRNG tidak pernah langsung benar sekali ketik!</strong> Robot berputar-putar pusing atau menabrak tembok adalah bagian dari proses belajar programmer handal. Kuncinya adalah <em>Debugging</em> yang tenang:
-            </p>
-
-            <div class="ped-debug-grid">
-              <div class="ped-debug-item loop-case">
-                <div class="dbg-icon">🔄</div>
-                <div class="dbg-content">
-                  <h4>Kasus 1: Robot Berputar-putar di Tempat (Infinite Loop)</h4>
-                  <p><strong>Penyebab:</strong> Robot terus mengeksekusi <code>turnleft</code> tanpa pernah melangkah maju!</p>
-                  <p class="dbg-sol"><strong>Solusi Cepat:</strong> Pastikan di dalam blok <code>while</code> atau percabanganmu terdapat perintah <code>move</code> agar robot berpindah petak dan kondisi sensor bisa berubah.</p>
-                </div>
-              </div>
-              <div class="ped-debug-item crash-case">
-                <div class="dbg-icon">💥</div>
-                <div class="dbg-content">
-                  <h4>Kasus 2: Robot Menabrak Dinding (Robot Crashed)</h4>
-                  <p><strong>Penyebab:</strong> Robot diperintahkan <code>move</code> tanpa mengecek apakah jalur depannya kosong.</p>
-                  <p class="dbg-sol"><strong>Solusi Cepat:</strong> Selalu lindungi instruksi melangkah dengan pengondisian sensor <code>if front_is_clear: move</code> atau gunakan pola susur dinding <code>langkah</code>.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        
-          <!-- LANGKAH 6: WARNING CALLOUT -->
-          <div class="pedagogy-step-card ped-warning-card" id="langkah6">
-            <div class="ped-warning-banner">
-              <span class="warning-icon-badge">⚠️</span>
-              <div class="warning-text-wrap">
-                <h3 class="warning-headline">PERINGATAN KERAS: INDENTASI ADALAH NYAWA DI GVRNG</h3>
-                <p class="warning-sub">
-                  Bahasa GVRNG (seperti halnya Python murni) <strong>TIDAK menggunakan kurung kurawal <code>{}</code></strong> untuk menandai isi fungsi atau percabangan. GVRNG menggunakan <strong>Spasi Menjorok (Indentasi)</strong>!
-                </p>
-                <div class="warning-rules-box">
-                  <p><strong>🚨 Hukum Mati Indentasi:</strong></p>
-                  <ul>
-                    <li>Satu spasi saja meleset, program akan langsung berhenti dengan pesan <code>Error: IndentationError</code> atau robot berjalan liar di luar kontrol!</li>
-                    <li>Setiap baris di bawah <code>define</code>, <code>while</code>, <code>if</code>, <code>elif</code>, dan <code>else</code> <strong>WAJIB menjorok 4 spasi (atau 1 tombol Tab konsisten)</strong>.</li>
-                    <li>Jangan pernah mencampur spasi manual dan tab dalam satu file kode!</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        
-          <!-- PEDAGOGY ACCORDION DEEP DIVE -->
-          <div class="ped-accordion-wrap">
-            <details class="ped-details">
-              <summary class="ped-summary">
-                <span class="sum-icon">💡</span>
-                <span class="sum-title">Baca Selengkapnya: Mengapa Menghindari Tebak-Tebakan Langkah Manual (do 88: move)?</span>
-                <span class="sum-arrow">&darr;</span>
-              </summary>
-              <div class="ped-details-body">
-                <p>
-                  Pada soal ujian seperti <strong>Misi 4 (Lintasan 4 Menara)</strong>, siswa yang panik sering menghitung jumlah petak satu per satu lalu menulis <code>do 88: langkah</code>. Mengapa cara ini berisiko fatal?
-                </p>
-                <ol>
-                  <li><strong>Human Error:</strong> Salah menghitung 1 langkah saja di baris 43, robot akan membentur tembok di puncak menara dan nilai otomatis 0.</li>
-                  <li><strong>Tolak Ukur Aslab:</strong> Dosen &amp; Aslab tidak menilai angka langkah, mereka menguji <strong>logika sensor kondisional</strong> (apakah siswa paham cara membuat robot berhenti sendiri secara cerdas).</li>
-                  <li><strong>Dunia Kerja Nyata:</strong> Robot vacuum cleaner atau mobil otonom tidak pernah diprogram "maju 100 meter lalu belok". Mereka diprogram: <em>"Maju selama sensor depan tidak mendeteksi rintangan; jika ada belokan, ikuti dinding."</em></li>
-                </ol>
-              </div>
-            </details>
-          </div>
-
-        </section>
+      </section>
 
       <!-- Main Simulator & Builder Card -->
       <div class="simulator-arena-card">
@@ -860,18 +457,17 @@
     <div id="tabMateri" class="main-tab-view">
       <div class="materi-content-wrapper">
         <!-- ======================================================================= -->
-        <!-- MASTERCLASS PEDAGOGI: CARA BERPIKIR, MENGENALI LOGIKA & MENYUSUN ALUR (v2.0) -->
+        <!-- MASTERCLASS PEDAGOGI: CARA BERPIKIR, MENGENALI LOGIKA & MENYUSUN ALUR -->
         <!-- ======================================================================= -->
-        <section id="sectionCaraBerpikir" aria-label="Panduan Cara Berpikir GVRNG">
+        <section id="sectionCaraBerpikir" class="pedagogy-master-section" aria-label="Panduan Cara Berpikir GVRNG">
           
           <!-- Hero Card -->
           <div class="pedagogy-hero-card">
-            <span class="pedagogy-kicker">🎓 Framework Pedagogi Mahasiswa</span>
+            <span class="pedagogy-kicker">🎓 Framework Pedagogi Siswa • Cara Berpikir</span>
             <h2 class="pedagogy-main-title">Cara Berpikir, Mengenali Logika Penyelesaian dan Menyusun Alur</h2>
             <p class="pedagogy-subtitle">
-              Banyak mahasiswa bingung bukan karena tidak bisa mengetik kode, melainkan karena langsung disuguhi kode akhir tanpa memahami <strong>SOP &amp; Pola Pikir Logis</strong> di baliknya. Pelajari langkah sistematis berikut untuk membedah labirin GVRNG dari membaca arena hingga menulis kode bebas error!
+              Banyak mahasiswa merasa materi coding &ldquo;abstrak&rdquo; karena langsung disuguhi baris kode akhir tanpa memahami <strong>SOP &amp; Pola Pikir Logis</strong> di baliknya. Pelajari framework sistematis di bawah ini untuk membedah labirin GVRNG dari membaca arena hingga menulis kode bebas error!
             </p>
-            
             <div class="pedagogy-nav-pills">
               <a href="#langkah1" class="ped-pill"><span class="pill-num">1</span> Analisis Visual</a>
               <a href="#langkah2" class="ped-pill"><span class="pill-num">2</span> Aturan Tangan Kanan</a>
@@ -881,6 +477,395 @@
               <a href="#langkah5" class="ped-pill"><span class="pill-num">5</span> Trial &amp; Error</a>
               <a href="#langkah6" class="ped-pill"><span class="pill-num">6</span> Wajib: Indentasi</a>
             </div>
+          </div>
+
+          <!-- LANGKAH 1 -->
+          <div class="pedagogy-step-card" id="langkah1">
+            <div class="ped-step-header">
+              <span class="ped-step-badge">Langkah 1</span>
+              <h3 class="ped-step-title">👁️ Analisis Visual: Baca Map-nya Terlebih Dahulu!</h3>
+            </div>
+            <p class="ped-step-desc">
+              Kesalahan nomor satu pemula adalah langsung buru-buru mengetik kode (seperti <code>move</code> atau <code>turnleft</code>) tanpa membaca peta. Ingat: <strong>Otak manusia harus menyelesaikan labirin secara visual terlebih dahulu, baru kemudian robot menerjemahkannya ke baris perintah.</strong>
+            </p>
+
+            <div class="ped-audit-grid">
+              <div class="ped-audit-item">
+                <div class="audit-icon">📍</div>
+                <div class="audit-body">
+                  <h4>1. Cek Posisi Awal &amp; Arah Hadap</h4>
+                  <p>Catat koordinat <strong>(X, Y)</strong> awal robot dan ke mana hidungnya menghadap (<strong>Utara, Timur, Selatan, atau Barat</strong>). Arah hadap awal menentukan apakah robot harus langsung melangkah atau memutar badan dulu.</p>
+                </div>
+              </div>
+              <div class="ped-audit-item">
+                <div class="audit-icon">🏁</div>
+                <div class="audit-body">
+                  <h4>2. Target &amp; Kondisi Berhenti</h4>
+                  <p>Apa misi akhirnya? Apakah memungut seluruh beeper, keluar pintu lorong, atau mengitari gedung? Bagaimana robot tahu kapan harus <code>turnoff</code> (misal: saat menyentuh beeper atau saat kedua sisi terbuka)?</p>
+                </div>
+              </div>
+              <div class="ped-audit-item">
+                <div class="audit-icon">🧱</div>
+                <div class="audit-body">
+                  <h4>3. Cek Rintangan &amp; Tembok</h4>
+                  <p>Di mana saja tembok buntu berada? Di mana celah jalan yang terbuka? Jangan menghitung jumlah petak manual jika dindingnya bisa disusuri dengan sensor logika otomatis!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LANGKAH 2 -->
+          <div class="pedagogy-step-card" id="langkah2">
+            <div class="ped-step-header">
+              <span class="ped-step-badge" style="background:#10b981;">Langkah 2</span>
+              <h3 class="ped-step-title">✋ Analogi Logika &ldquo;Tangan Kanan&rdquo; (Right-Hand Rule)</h3>
+            </div>
+            
+            <div class="ped-analogy-box">
+              <div class="analogy-lead">
+                <span class="analogy-badge">💡 Analogi Kehidupan Nyata</span>
+                <p>
+                  <strong>&ldquo;Bayangkan kamu tersesat di dalam labirin raksasa dengan mata tertutup rapat. Bagaimana cara pasti agar bisa keluar tanpa berputar-putar selamanya?&rdquo;</strong>
+                </p>
+                <p>
+                  Jawabannya adalah: <strong>Raba dan tempelkan tangan kananmu ke dinding, lalu berjalanlah terus tanpa pernah melepaskan tangan kanan dari dinding tersebut!</strong> Prinsip sederhana ini dijamin secara matematis akan menavigasi setiap tikungan, lorong bercabang, maupun jalan buntu.
+                </p>
+              </div>
+            </div>
+
+            <p style="margin: 18px 0 12px 0; font-size: 13.5px; font-weight: 600; color: var(--color-text-main, #0f172a);">
+              Di dalam algoritma GVRNG, analogi tangan kanan dipecah menjadi <strong>3 Aturan Prioritas</strong> berurutan:
+            </p>
+
+            <div class="ped-rules-list">
+              <!-- Aturan A -->
+              <div class="ped-rule-callout rule-a">
+                <div class="rule-tag">
+                  <span class="rule-letter">A</span>
+                  <span class="rule-prio">Prioritas 1</span>
+                </div>
+                <div class="rule-content">
+                  <div class="rule-condition">Jika jalan di sebelah kanan kosong (kanan plong):</div>
+                  <div class="rule-action">&rarr; Belok Kanan (turnright / kananmas), lalu Maju 1 langkah (move).</div>
+                  <div class="rule-sensor">Sensor GVRNG: <code>if right_is_clear:</code></div>
+                </div>
+              </div>
+
+              <!-- Aturan B -->
+              <div class="ped-rule-callout rule-b">
+                <div class="rule-tag">
+                  <span class="rule-letter">B</span>
+                  <span class="rule-prio">Prioritas 2</span>
+                </div>
+                <div class="rule-content">
+                  <div class="rule-condition">Jika jalan di sebelah kanan buntu (tertutup tembok), tapi jalan lurus kosong:</div>
+                  <div class="rule-action">&rarr; Jalan Lurus ke depan (move). Robot tetap menyusuri tembok samping!</div>
+                  <div class="rule-sensor">Sensor GVRNG: <code>elif front_is_clear:</code></div>
+                </div>
+              </div>
+
+              <!-- Aturan C -->
+              <div class="ped-rule-callout rule-c">
+                <div class="rule-tag">
+                  <span class="rule-letter">C</span>
+                  <span class="rule-prio">Prioritas 3</span>
+                </div>
+                <div class="rule-content">
+                  <div class="rule-condition">Jika jalan di kanan buntu DAN jalan lurus juga buntu (sudut tembok buntu):</div>
+                  <div class="rule-action">&rarr; Belok Kiri (turnleft) untuk memutar haluan mencari jalan keluar.</div>
+                  <div class="rule-sensor">Sensor GVRNG: <code>else: turnleft</code></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LANGKAH 2.5: ARENA VISUAL GVRNG -->
+          <div class="pedagogy-step-card" id="langkah25">
+            <div class="ped-step-header">
+              <span class="ped-step-badge" style="background:#6366f1;">Langkah 2.5</span>
+              <h3 class="ped-step-title">🎮 Demonstrasi Visual Lintasan Arena GVRNG (Grid 5&times;5)</h3>
+            </div>
+            <p class="ped-step-desc">
+              Berikut adalah representasi arena 2D GVRNG asli (dengan titik koordinat, dinding batas merah, dan koin beeper). Amati bagaimana robot menerapkan <strong>Aturan Tangan Kanan</strong> saat mengitari dinding rintangan menuju target:
+            </p>
+
+            <div class="ped-arena-container">
+              <div class="ped-arena-svg-wrap">
+                <svg id="svgGvrngArena" viewBox="0 0 520 420" width="100%" height="auto" class="ped-arena-svg" aria-label="Visualisasi Arena GVRNG 5x5">
+                  <defs>
+                    <marker id="arrowRight" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#facc15" stroke="#ca8a04" stroke-width="1.2" />
+                    </marker>
+                    <marker id="arrowUp" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                      <path d="M 1.5 8 L 5 0 L 8.5 8 z" fill="#facc15" stroke="#ca8a04" stroke-width="1.2" />
+                    </marker>
+                  </defs>
+
+                  <!-- Canvas Background -->
+                  <rect x="0" y="0" width="520" height="420" fill="#ffffff" rx="10" />
+
+                  <!-- Live Status Tag Badge (Matches real 2D simulator UI) -->
+                  <g transform="translate(18, 14)">
+                    <rect x="0" y="0" width="170" height="24" rx="4" fill="#1e293b" />
+                    <text x="85" y="16" text-anchor="middle" fill="#f8fafc" font-size="10.5" font-weight="700" font-family="monospace" letter-spacing="0.5">KONDISI SAAT INI / LIVE</text>
+                  </g>
+
+                  <!-- Grid Coordinate Labels -->
+                  <!-- X Axis (Avenues 1..5) -->
+                  <text x="90" y="380" class="svg-axis-label">1</text>
+                  <text x="170" y="380" class="svg-axis-label">2</text>
+                  <text x="250" y="380" class="svg-axis-label">3</text>
+                  <text x="330" y="380" class="svg-axis-label">4</text>
+                  <text x="410" y="380" class="svg-axis-label">5</text>
+                  
+                  <!-- Y Axis (Streets 1..5) -->
+                  <text x="35" y="335" class="svg-axis-label">1</text>
+                  <text x="35" y="265" class="svg-axis-label">2</text>
+                  <text x="35" y="195" class="svg-axis-label">3</text>
+                  <text x="35" y="125" class="svg-axis-label">4</text>
+                  <text x="35" y="55" class="svg-axis-label">5</text>
+
+                  <!-- Grid Intersection Dots (6x6 dots for 5x5 cells) -->
+                  <circle cx="50" cy="330" r="2.5" class="svg-dot" /><circle cx="130" cy="330" r="2.5" class="svg-dot" /><circle cx="210" cy="330" r="2.5" class="svg-dot" /><circle cx="290" cy="330" r="2.5" class="svg-dot" /><circle cx="370" cy="330" r="2.5" class="svg-dot" /><circle cx="450" cy="330" r="2.5" class="svg-dot" />
+                  <circle cx="50" cy="260" r="2.5" class="svg-dot" /><circle cx="130" cy="260" r="2.5" class="svg-dot" /><circle cx="210" cy="260" r="2.5" class="svg-dot" /><circle cx="290" cy="260" r="2.5" class="svg-dot" /><circle cx="370" cy="260" r="2.5" class="svg-dot" /><circle cx="450" cy="260" r="2.5" class="svg-dot" />
+                  <circle cx="50" cy="190" r="2.5" class="svg-dot" /><circle cx="130" cy="190" r="2.5" class="svg-dot" /><circle cx="210" cy="190" r="2.5" class="svg-dot" /><circle cx="290" cy="190" r="2.5" class="svg-dot" /><circle cx="370" cy="190" r="2.5" class="svg-dot" /><circle cx="450" cy="190" r="2.5" class="svg-dot" />
+                  <circle cx="50" cy="120" r="2.5" class="svg-dot" /><circle cx="130" cy="120" r="2.5" class="svg-dot" /><circle cx="210" cy="120" r="2.5" class="svg-dot" /><circle cx="290" cy="120" r="2.5" class="svg-dot" /><circle cx="370" cy="120" r="2.5" class="svg-dot" /><circle cx="450" cy="120" r="2.5" class="svg-dot" />
+                  <circle cx="50" cy="50" r="2.5" class="svg-dot" /><circle cx="130" cy="50" r="2.5" class="svg-dot" /><circle cx="210" cy="50" r="2.5" class="svg-dot" /><circle cx="290" cy="50" r="2.5" class="svg-dot" /><circle cx="370" cy="50" r="2.5" class="svg-dot" /><circle cx="450" cy="50" r="2.5" class="svg-dot" />
+
+                  <!-- Boundary Outer Walls (Red GvRng Walls) -->
+                  <line x1="50" y1="330" x2="450" y2="330" class="svg-wall-red" />
+                  <line x1="50" y1="330" x2="50" y2="50" class="svg-wall-red" />
+
+                  <!-- Obstacle Walls (L-Shaped Obstacle in Center) -->
+                  <line x1="210" y1="260" x2="210" y2="120" class="svg-wall-red" />
+                  <line x1="210" y1="120" x2="370" y2="120" class="svg-wall-red" />
+
+                  <!-- Target Beeper at (4, 4) -->
+                  <g transform="translate(330, 85)">
+                    <circle cx="0" cy="0" r="14" fill="#0284c7" stroke="#ffffff" stroke-width="2" />
+                    <circle cx="0" cy="0" r="15" fill="none" stroke="#0369a1" stroke-width="1" />
+                    <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold" font-family="monospace">1</text>
+                  </g>
+
+                  <!-- Robot Trajectory Dashed Trail -->
+                  <path d="M 90 295 L 170 295 L 170 225 L 170 155 L 250 155 L 330 155 L 330 85" 
+                        fill="none" stroke="#60a5fa" stroke-width="3.5" stroke-dasharray="6,4" stroke-linecap="round" stroke-linejoin="round" />
+
+                  <!-- Start Pin at (1,1) [Pixel: 90, 295] -->
+                  <circle cx="90" cy="295" r="9" fill="#10b981" stroke="#ffffff" stroke-width="2" />
+                  <text x="90" y="299" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" font-family="sans-serif">S</text>
+
+                  <!-- Robot Triangle Sprite at Current Position (2, 2) [Pixel: 170, 225] facing NORTH -->
+                  <g transform="translate(170, 225) rotate(-90)">
+                    <path d="M 12 0 L -8 -9 L -4 0 L -8 9 Z" fill="#334155" stroke="#1e293b" stroke-width="1.8" />
+                    <circle cx="3" cy="0" r="2.2" fill="#ffffff" />
+                  </g>
+
+                  <!-- Turn Badge 1: [-> Belok Kanan] at (2,3) [170, 155] -->
+                  <g transform="translate(170, 155)">
+                    <path d="M -5 0 L 15 0" stroke="#facc15" stroke-width="3.5" marker-end="url(#arrowRight)" />
+                    <rect x="22" y="-12" width="144" height="24" rx="5" fill="#0f172a" fill-opacity="0.9" />
+                    <text x="94" y="4" text-anchor="middle" fill="#fde047" font-size="10" font-weight="bold" font-family="sans-serif">[&rarr; Belok Kanan (kananmas)]</text>
+                  </g>
+
+                  <!-- Turn Badge 2: [^ Belok Kiri] at (4,3) [330, 155] -->
+                  <g transform="translate(330, 155)">
+                    <path d="M 0 10 L 0 -12" stroke="#facc15" stroke-width="3.5" marker-end="url(#arrowUp)" />
+                    <rect x="15" y="-12" width="145" height="24" rx="5" fill="#0f172a" fill-opacity="0.9" />
+                    <text x="87" y="4" text-anchor="middle" fill="#fde047" font-size="10" font-weight="bold" font-family="sans-serif">[^ Belok Kiri (turnleft)]</text>
+                  </g>
+                </svg>
+              </div>
+
+              <!-- Rationale Panel below SVG -->
+              <div class="ped-arena-rationale">
+                <div class="rationale-header">
+                  <span class="rat-tag">🔍 Analisis Alur Lintasan Visual</span>
+                  <strong>Perhatikan bagaimana robot selalu mengutamakan jalur di sebelah kanannya:</strong>
+                </div>
+                <ul class="rat-list">
+                  <li><strong>Titik Start S di (1,1):</strong> Robot menghadap Timur. Karena dinding di sebelah kanannya (South) tertutup dan depan terbuka, ia maju lurus ke (2,1).</li>
+                  <li><strong>Di Petak (2,3):</strong> Dinding di sebelah kanannya berakhir (kanan terbuka plong!). Sesuai <strong>Aturan A</strong>, robot langsung membelokkan haluan ke kanan <code>kananmas</code> lalu melangkah.</li>
+                  <li><strong>Di Petak (4,3):</strong> Di sebelah kanan dan depannya terhalang sudut dinding buntu. Sesuai <strong>Aturan C</strong>, robot berputar ke kiri <code>turnleft</code> hingga menemukan jalur terbuka menuju beeper di (4,4)!</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- LANGKAH 3 -->
+          <div class="pedagogy-step-card" id="langkah3">
+            <div class="ped-step-header">
+              <span class="ped-step-badge" style="background:#8b5cf6;">Langkah 3</span>
+              <h3 class="ped-step-title">💻 Menerjemahkan Logika ke Kode GVRNG (if - elif - else)</h3>
+            </div>
+            <p class="ped-step-desc">
+              Setelah alur logika Aturan A, B, dan C dipahami secara visual, menerjemahkannya ke dalam sintaksis Python/GVRNG menjadi sangat mudah! Kita menggunakan struktur percabangan bertingkat <code>if - elif - else</code>:
+            </p>
+
+            <div class="ped-code-wrapper">
+              <div class="ped-code-header">
+                <span class="ped-code-lang">Python (GVRNG) • 13 Baris</span>
+                <button class="btn-copy-code" data-code-id="codeLangkah3" title="Salin Kode">
+                  <span class="copy-icon">📋</span> Salin Kode
+                </button>
+              </div>
+              <div class="ped-code-container">
+                <div class="ped-line-numbers" aria-hidden="true">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                  <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                  <span>11</span><span>12</span><span>13</span>
+                </div>
+                <pre class="ped-code-pre"><code id="codeLangkah3"><span class="c-comment"># Asumsi: kita sudah punya fungsi 'kananmas' (do 3: turnleft)</span>
+<span class="c-keyword">define</span> <span class="c-func">kananmas</span>:
+    <span class="c-keyword">do</span> <span class="c-num">3</span>:
+        <span class="c-builtin">turnleft</span>
+
+<span class="c-comment"># Penerapan Aturan A, B, dan C:</span>
+<span class="c-keyword">if</span> <span class="c-sensor">right_is_clear</span>:       <span class="c-comment"># Aturan A: Cek Kanan dulu!</span>
+    <span class="c-func">kananmas</span>
+    <span class="c-builtin">move</span>
+<span class="c-keyword">elif</span> <span class="c-sensor">front_is_clear</span>:     <span class="c-comment"># Aturan B: Jika kanan buntu, cek depan</span>
+    <span class="c-builtin">move</span>
+<span class="c-keyword">else</span>:                    <span class="c-comment"># Aturan C: Kanan &amp; depan buntu, putar kiri!</span>
+    <span class="c-builtin">turnleft</span></code></pre>
+              </div>
+            </div>
+
+            <div class="ped-explanation-callout">
+              <strong>📖 Penjelasan Baris demi Baris:</strong>
+              <ul>
+                <li><strong>Baris 7-9 (Aturan A):</strong> Robot selalu memprioritaskan melihat ke bahu kanannya. Jika kanan terbuka, ia belok kanan <code>kananmas</code> lalu maju 1 langkah.</li>
+                <li><strong>Baris 10-11 (Aturan B):</strong> Jika kanan buntu tapi depannya plong, ia melangkah maju lurus <code>move</code>. Bahu kanannya tetap menyusuri dinding.</li>
+                <li><strong>Baris 12-13 (Aturan C):</strong> Jika kanan dan depan sama-sama tertutup tembok buntu, satu-satunya opsi selamat adalah belok kiri <code>turnleft</code>!</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- LANGKAH 4 -->
+          <div class="pedagogy-step-card" id="langkah4">
+            <div class="ped-step-header">
+              <span class="ped-step-badge" style="background:#e11d48;">Langkah 4</span>
+              <h3 class="ped-step-title">⚖️ Jebakan Ujian: Perbedaan <code>if</code> vs <code>while</code></h3>
+            </div>
+            <p class="ped-step-desc">
+              Banyak mahasiswa kehilangan poin ujian gara-gara salah memilih antara <code>if</code> dan <code>while</code>. Mari kita uji pada studi kasus nyata: <strong>Mengambil Beeper di Petak</strong>.
+            </p>
+
+            <div class="ped-compare-grid">
+              <!-- Card IF -->
+              <div class="ped-compare-card if-card">
+                <div class="compare-header">
+                  <span class="cmp-pill cmp-if">Kondisional (if)</span>
+                  <h4>if next_to_a_beeper:</h4>
+                </div>
+                <div class="compare-body">
+                  <p class="cmp-punchline">&ldquo;Cek sekali saja, lalu lewat.&rdquo;</p>
+                  <pre class="cmp-code"><code>if next_to_a_beeper:
+    pickbeeper</code></pre>
+                  <div class="cmp-explanation">
+                    <strong>Karakteristik:</strong>
+                    <ul>
+                      <li>Robot hanya mengecek <strong>1 kali</strong> saat menginjak petak tersebut.</li>
+                      <li>Jika ada 1 beeper, beeper terambil.</li>
+                      <li><strong class="text-danger">Jebakan Fatal:</strong> Jika di petak tersebut ada tumpukan <strong>5 beeper</strong>, robot hanya mengambil 1 beeper lalu langsung jalan! 4 beeper tertinggal dan misi otomatis <strong>GAGAL</strong>.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card WHILE -->
+              <div class="pedagogy-compare-card while-card">
+                <div class="compare-header">
+                  <span class="cmp-pill cmp-while">Perulangan (while)</span>
+                  <h4>while next_to_a_beeper:</h4>
+                </div>
+                <div class="compare-body">
+                  <p class="cmp-punchline">&ldquo;Sedot terus sampai benar-benar bersih!&rdquo;</p>
+                  <pre class="cmp-code"><code>while next_to_a_beeper:
+    pickbeeper</code></pre>
+                  <div class="cmp-explanation">
+                    <strong>Karakteristik:</strong>
+                    <ul>
+                      <li>Robot akan terus-menerus memungut beeper <strong>SELAMA</strong> koin di petak tersebut masih ada.</li>
+                      <li>Berapapun jumlah koinnya (1, 5, atau 55 beeper seperti di Misi 4 Menara), petak dijamin <strong>bersih 0 sisa</strong>!</li>
+                      <li><strong class="text-success">Rekomendasi Praktikum:</strong> Gunakan <code>while</code> untuk tugas pembersihan beeper agar aman dari tumpukan tersembunyi!</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LANGKAH 5 -->
+          <div class="pedagogy-step-card" id="langkah5">
+            <div class="ped-step-header">
+              <span class="ped-step-badge" style="background:#0284c7;">Langkah 5</span>
+              <h3 class="ped-step-title">🧪 Seni &ldquo;Trial &amp; Error&rdquo;: Jangan Takut Salah!</h3>
+            </div>
+            <p class="ped-step-desc">
+              Pesan terpenting untuk setiap praktikan: <strong>Program GVRNG tidak pernah langsung benar sekali ketik!</strong> Robot berputar-putar pusing atau menabrak tembok adalah bagian dari proses belajar programmer handal. Kuncinya adalah <em>Debugging</em> yang tenang:
+            </p>
+
+            <div class="ped-debug-grid">
+              <div class="ped-debug-item loop-case">
+                <div class="dbg-icon">🔄</div>
+                <div class="dbg-content">
+                  <h4>Kasus 1: Robot Berputar-putar di Tempat (Infinite Loop)</h4>
+                  <p><strong>Penyebab:</strong> Robot terus mengeksekusi <code>turnleft</code> tanpa pernah melangkah maju!</p>
+                  <p class="dbg-sol"><strong>Solusi Cepat:</strong> Pastikan di dalam blok <code>while</code> atau percabanganmu terdapat perintah <code>move</code> agar robot berpindah petak dan kondisi sensor bisa berubah.</p>
+                </div>
+              </div>
+              <div class="ped-debug-item crash-case">
+                <div class="dbg-icon">💥</div>
+                <div class="dbg-content">
+                  <h4>Kasus 2: Robot Menabrak Dinding (Robot Crashed)</h4>
+                  <p><strong>Penyebab:</strong> Robot diperintahkan <code>move</code> tanpa mengecek apakah jalur depannya kosong.</p>
+                  <p class="dbg-sol"><strong>Solusi Cepat:</strong> Selalu lindungi instruksi melangkah dengan pengondisian sensor <code>if front_is_clear: move</code> atau gunakan pola susur dinding <code>langkah</code>.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LANGKAH 6: WARNING CALLOUT -->
+          <div class="pedagogy-step-card ped-warning-card" id="langkah6">
+            <div class="ped-warning-banner">
+              <span class="warning-icon-badge">⚠️</span>
+              <div class="warning-text-wrap">
+                <h3 class="warning-headline">PERINGATAN KERAS: INDENTASI ADALAH NYAWA DI GVRNG</h3>
+                <p class="warning-sub">
+                  Bahasa GVRNG (seperti halnya Python murni) <strong>TIDAK menggunakan kurung kurawal <code>{}</code></strong> untuk menandai isi fungsi atau percabangan. GVRNG menggunakan <strong>Spasi Menjorok (Indentasi)</strong>!
+                </p>
+                <div class="warning-rules-box">
+                  <p><strong>🚨 Hukum Mati Indentasi:</strong></p>
+                  <ul>
+                    <li>Satu spasi saja meleset, program akan langsung berhenti dengan pesan <code>Error: IndentationError</code> atau robot berjalan liar di luar kontrol!</li>
+                    <li>Setiap baris di bawah <code>define</code>, <code>while</code>, <code>if</code>, <code>elif</code>, dan <code>else</code> <strong>WAJIB menjorok 4 spasi (atau 1 tombol Tab konsisten)</strong>.</li>
+                    <li>Jangan pernah mencampur spasi manual dan tab dalam satu file kode!</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PEDAGOGY ACCORDION DEEP DIVE -->
+          <div class="ped-accordion-wrap">
+            <details class="ped-details">
+              <summary class="ped-summary">
+                <span class="sum-icon">💡</span>
+                <span class="sum-title">Baca Selengkapnya: Mengapa Menghindari Tebak-Tebakan Langkah Manual (do 88: move)?</span>
+                <span class="sum-arrow">&darr;</span>
+              </summary>
+              <div class="ped-details-body">
+                <p>
+                  Pada soal ujian seperti <strong>Misi 4 (Lintasan 4 Menara)</strong>, siswa yang panik sering menghitung jumlah petak satu per satu lalu menulis <code>do 88: langkah</code>. Mengapa cara ini berisiko fatal?
+                </p>
+                <ol>
+                  <li><strong>Human Error:</strong> Salah menghitung 1 langkah saja di baris 43, robot akan membentur tembok di puncak menara dan nilai otomatis 0.</li>
+                  <li><strong>Tolak Ukur Aslab:</strong> Dosen &amp; Aslab tidak menilai angka langkah, mereka menguji <strong>logika sensor kondisional</strong> (apakah siswa paham cara membuat robot berhenti sendiri secara cerdas).</li>
+                  <li><strong>Dunia Kerja Nyata:</strong> Robot vacuum cleaner atau mobil otonom tidak pernah diprogram "maju 100 meter lalu belok". Mereka diprogram: <em>"Maju selama sensor depan tidak mendeteksi rintangan; jika ada belokan, ikuti dinding."</em></li>
+                </ol>
+              </div>
+            </details>
           </div>
 
         </section>

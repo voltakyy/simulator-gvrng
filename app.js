@@ -110,17 +110,46 @@ document.addEventListener('DOMContentLoaded', () => {
   const modePills = document.querySelectorAll('.nav-tab-btn');
   const tabViews = document.querySelectorAll('.main-tab-view');
 
+  function switchTab(tabId) {
+    modePills.forEach(p => p.classList.toggle('active', p.getAttribute('data-tab') === tabId));
+    tabViews.forEach(v => v.classList.toggle('active', v.id === tabId));
+    if (tabId === 'tabSimulator') {
+      renderSimulatorCanvases();
+    } else if (tabId === 'tabMateri' && typeof window.initMateriVisualizers === 'function') {
+      setTimeout(window.initMateriVisualizers, 80);
+    }
+  }
+
   modePills.forEach(pill => {
     pill.addEventListener('click', () => {
       const targetTab = pill.getAttribute('data-tab');
-      modePills.forEach(p => p.classList.toggle('active', p === pill));
-      tabViews.forEach(v => v.classList.toggle('active', v.id === targetTab));
-
-      if (targetTab === 'tabSimulator') {
-        renderSimulatorCanvases();
-      }
+      switchTab(targetTab);
     });
   });
+
+  // Hash-based deep link handler (e.g. #langkah25, #sectionCaraBerpikir)
+  function handleHashNavigation() {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    if (hash === '#tabSimulator' || hash === '#tabMateri' || hash === '#tabBankSoal') {
+      switchTab(hash.substring(1));
+      return;
+    }
+
+    if (hash.startsWith('#langkah') || hash.startsWith('#sectionCaraBerpikir') || hash.startsWith('#materiCard')) {
+      switchTab('tabMateri');
+      setTimeout(() => {
+        const targetEl = document.querySelector(hash);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+    }
+  }
+
+  window.addEventListener('hashchange', handleHashNavigation);
+  setTimeout(handleHashNavigation, 200);
 
   // ==========================================
   // MATERI TO SIMULATOR DEEP LINK HANDLER
