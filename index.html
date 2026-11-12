@@ -424,6 +424,37 @@
             </div>
           </div>
 
+        
+          <!-- LANGKAH 5 -->
+          <div class="pedagogy-step-card" id="langkah5">
+            <div class="ped-step-header">
+              <span class="ped-step-badge" style="background:#0284c7;">Langkah 5</span>
+              <h3 class="ped-step-title">🧪 Seni &ldquo;Trial &amp; Error&rdquo;: Jangan Takut Salah!</h3>
+            </div>
+            <p class="ped-step-desc">
+              Pesan terpenting untuk setiap praktikan: <strong>Program GVRNG tidak pernah langsung benar sekali ketik!</strong> Robot berputar-putar pusing atau menabrak tembok adalah bagian dari proses belajar programmer handal. Kuncinya adalah <em>Debugging</em> yang tenang:
+            </p>
+
+            <div class="ped-debug-grid">
+              <div class="ped-debug-item loop-case">
+                <div class="dbg-icon">🔄</div>
+                <div class="dbg-content">
+                  <h4>Kasus 1: Robot Berputar-putar di Tempat (Infinite Loop)</h4>
+                  <p><strong>Penyebab:</strong> Robot terus mengeksekusi <code>turnleft</code> tanpa pernah melangkah maju!</p>
+                  <p class="dbg-sol"><strong>Solusi Cepat:</strong> Pastikan di dalam blok <code>while</code> atau percabanganmu terdapat perintah <code>move</code> agar robot berpindah petak dan kondisi sensor bisa berubah.</p>
+                </div>
+              </div>
+              <div class="ped-debug-item crash-case">
+                <div class="dbg-icon">💥</div>
+                <div class="dbg-content">
+                  <h4>Kasus 2: Robot Menabrak Dinding (Robot Crashed)</h4>
+                  <p><strong>Penyebab:</strong> Robot diperintahkan <code>move</code> tanpa mengecek apakah jalur depannya kosong.</p>
+                  <p class="dbg-sol"><strong>Solusi Cepat:</strong> Selalu lindungi instruksi melangkah dengan pengondisian sensor <code>if front_is_clear: move</code> atau gunakan pola susur dinding <code>langkah</code>.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </section>
 
       <!-- Main Simulator & Builder Card -->
