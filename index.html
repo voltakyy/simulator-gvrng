@@ -318,6 +318,56 @@
             </div>
           </div>
 
+        
+          <!-- LANGKAH 3 -->
+          <div class="pedagogy-step-card" id="langkah3">
+            <div class="ped-step-header">
+              <span class="ped-step-badge" style="background:#8b5cf6;">Langkah 3</span>
+              <h3 class="ped-step-title">💻 Menerjemahkan Logika ke Kode GVRNG (if - elif - else)</h3>
+            </div>
+            <p class="ped-step-desc">
+              Setelah alur logika Aturan A, B, dan C dipahami secara visual, menerjemahkannya ke dalam sintaksis Python/GVRNG menjadi sangat mudah! Kita menggunakan struktur percabangan bertingkat <code>if - elif - else</code>:
+            </p>
+
+            <div class="ped-code-wrapper">
+              <div class="ped-code-header">
+                <span class="ped-code-lang">Python (GVRNG) • 12 Baris</span>
+                <button class="btn-copy-code" data-code-id="codeLangkah3" title="Salin Kode">
+                  <span class="copy-icon">📋</span> Salin Kode
+                </button>
+              </div>
+              <div class="ped-code-container">
+                <div class="ped-line-numbers" aria-hidden="true">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                  <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                  <span>11</span><span>12</span><span>13</span>
+                </div>
+                <pre class="ped-code-pre"><code id="codeLangkah3"><span class="c-comment"># Asumsi: kita sudah punya fungsi 'kananmas' (do 3: turnleft)</span>
+<span class="c-keyword">define</span> <span class="c-func">kananmas</span>:
+    <span class="c-keyword">do</span> <span class="c-num">3</span>:
+        <span class="c-builtin">turnleft</span>
+
+<span class="c-comment"># Penerapan Aturan A, B, dan C:</span>
+<span class="c-keyword">if</span> <span class="c-sensor">right_is_clear</span>:       <span class="c-comment"># Aturan A: Cek Kanan dulu!</span>
+    <span class="c-func">kananmas</span>
+    <span class="c-builtin">move</span>
+<span class="c-keyword">elif</span> <span class="c-sensor">front_is_clear</span>:     <span class="c-comment"># Aturan B: Jika kanan buntu, cek depan</span>
+    <span class="c-builtin">move</span>
+<span class="c-keyword">else</span>:                    <span class="c-comment"># Aturan C: Kanan &amp; depan buntu, putar kiri!</span>
+    <span class="c-builtin">turnleft</span></code></pre>
+              </div>
+            </div>
+
+            <div class="ped-explanation-callout">
+              <strong>📖 Penjelasan Baris demi Baris:</strong>
+              <ul>
+                <li><strong>Baris 7-9 (Aturan A):</strong> Robot selalu memprioritaskan melihat ke bahu kanannya. Jika kanan terbuka, ia belok kanan <code>kananmas</code> lalu maju 1 langkah.</li>
+                <li><strong>Baris 10-11 (Aturan B):</strong> Jika kanan buntu tapi depannya plong, ia melangkah maju lurus <code>move</code>. Bahu kanannya tetap menyusuri dinding.</li>
+                <li><strong>Baris 12-13 (Aturan C):</strong> Jika kanan dan depan sama-sama tertutup tembok buntu, satu-satunya opsi selamat adalah belok kiri <code>turnleft</code>!</li>
+              </ul>
+            </div>
+          </div>
+
         </section>
 
       <!-- Main Simulator & Builder Card -->
