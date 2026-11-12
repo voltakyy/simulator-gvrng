@@ -96,7 +96,43 @@
         <div class="mission-dock-carousel" id="missionDockCarousel">
           <!-- Populated dynamically by app.js from GVR_MISSIONS -->
         </div>
-      </section>
+      
+          <!-- LANGKAH 1 -->
+          <div class="pedagogy-step-card" id="langkah1">
+            <div class="ped-step-header">
+              <span class="ped-step-badge">Langkah 1</span>
+              <h3 class="ped-step-title">👁️ Analisis Visual: Baca Map-nya Terlebih Dahulu!</h3>
+            </div>
+            <p class="ped-step-desc">
+              Kesalahan nomor satu pemula adalah langsung buru-buru mengetik kode (seperti <code>move</code> atau <code>turnleft</code>) tanpa membaca peta. Ingat: <strong>Otak manusia harus menyelesaikan labirin secara visual terlebih dahulu, baru kemudian robot menerjemahkannya ke baris perintah.</strong>
+            </p>
+
+            <div class="ped-audit-grid">
+              <div class="ped-audit-item">
+                <div class="audit-icon">📍</div>
+                <div class="audit-body">
+                  <h4>1. Cek Posisi Awal &amp; Arah Hadap</h4>
+                  <p>Catat koordinat <strong>(X, Y)</strong> awal robot dan ke mana hidungnya menghadap (<strong>Utara, Timur, Selatan, atau Barat</strong>). Arah hadap awal menentukan apakah robot harus langsung melangkah atau memutar badan dulu.</p>
+                </div>
+              </div>
+              <div class="ped-audit-item">
+                <div class="audit-icon">🏁</div>
+                <div class="audit-body">
+                  <h4>2. Target &amp; Kondisi Berhenti</h4>
+                  <p>Apa misi akhirnya? Apakah memungut seluruh beeper, keluar pintu lorong, atau mengitari gedung? Bagaimana robot tahu kapan harus <code>turnoff</code> (misal: saat menyentuh beeper atau saat kedua sisi terbuka)?</p>
+                </div>
+              </div>
+              <div class="ped-audit-item">
+                <div class="audit-icon">🧱</div>
+                <div class="audit-body">
+                  <h4>3. Cek Rintangan &amp; Tembok</h4>
+                  <p>Di mana saja tembok buntu berada? Di mana celah jalan yang terbuka? Jangan menghitung jumlah petak manual jika dindingnya bisa disusuri dengan sensor logika otomatis!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
 
       <!-- Main Simulator & Builder Card -->
       <div class="simulator-arena-card">
