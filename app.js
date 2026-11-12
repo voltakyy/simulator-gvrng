@@ -970,3 +970,32 @@ document.addEventListener('DOMContentLoaded', () => {
   setViewMode('live');
   setStudioSubmode('simulate');
 });
+
+  // ==========================================
+  // PEDAGOGY COPY-CODE INTERACTION HANDLER
+  // ==========================================
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-copy-code');
+    if (!btn) return;
+    const targetId = btn.getAttribute('data-code-id');
+    const codeEl = document.getElementById(targetId);
+    if (!codeEl) return;
+
+    const textToCopy = codeEl.innerText || codeEl.textContent;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const origText = btn.innerHTML;
+      btn.innerHTML = '<span>✅</span> Tersalin!';
+      btn.style.background = '#059669';
+      btn.style.color = '#ffffff';
+      setTimeout(() => {
+        btn.innerHTML = origText;
+        btn.style.background = '';
+        btn.style.color = '';
+      }, 2000);
+      if (typeof showToast === 'function') {
+        showToast('Kode berhasil disalin ke clipboard!');
+      }
+    }).catch(err => {
+      console.warn('Gagal menyalin:', err);
+    });
+  });
