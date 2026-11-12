@@ -2971,3 +2971,40 @@ html {
 :target {
   scroll-margin-top: 80px;
 }
+
+/* Mobile Responsive Tuning for Pedagogy Section */
+@media (max-width: 680px) {
+  .pedagogy-hero-card {
+    padding: 20px 18px;
+  }
+  .pedagogy-main-title {
+    font-size: 20px;
+  }
+  .pedagogy-subtitle {
+    font-size: 13px;
+  }
+  .pedagogy-step-card {
+    padding: 16px 18px;
+  }
+  .ped-step-title {
+    font-size: 16px;
+  }
+  .ped-rule-callout {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rule-tag {
+    flex-direction: row;
+    gap: 8px;
+  }
+  .ped-warning-banner {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ped-details-body {
+    padding-left: 18px;
+  }
+  .ped-code-container {
+    font-size: 11px;
+  }
+}
