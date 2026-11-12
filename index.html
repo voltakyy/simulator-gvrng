@@ -129,6 +129,19 @@
                   <p>Di mana saja tembok buntu berada? Di mana celah jalan yang terbuka? Jangan menghitung jumlah petak manual jika dindingnya bisa disusuri dengan sensor logika otomatis!</p>
                 </div>
               </div>
+            
+            <!-- Aturan B -->
+            <div class="ped-rule-callout rule-b">
+              <div class="rule-tag">
+                <span class="rule-letter">B</span>
+                <span class="rule-prio">Prioritas 2</span>
+              </div>
+              <div class="rule-content">
+                <div class="rule-condition">Jika kanan buntu (tertutup tembok), tapi jalan lurus kosong:</div>
+                <div class="rule-action">&rarr; Jalan Lurus ke depan (move). Robot tetap menyusuri tembok samping!</div>
+                <div class="rule-sensor">Sensor GVRNG: <code>elif front_is_clear:</code></div>
+              </div>
+            </div>
             </div>
           </div>
 

@@ -2501,3 +2501,12 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .rule-a .rule-prio { color: #059669; }
 .rule-a .rule-condition { color: #065f46; }
 .rule-a .rule-action { color: #047857; }
+
+.rule-b {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.rule-b .rule-letter { background: #3b82f6; }
+.rule-b .rule-prio { color: #2563eb; }
+.rule-b .rule-condition { color: #1e40af; }
+.rule-b .rule-action { color: #1d4ed8; }
